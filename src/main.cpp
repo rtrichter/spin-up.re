@@ -2,6 +2,7 @@
 
 #include "subsys/drive.hpp"
 #include "subsys/flywheel.hpp"
+#include "subsys/intake.hpp"
 
 /**
  * A callback function for LLEMU's center button.
@@ -77,9 +78,12 @@ void autonomous() {}
  * task, not resume it from where it left off.
  */
 void opcontrol() {
+	
 	while (true)
 	{
 		drive::opcon();
 		flywheel::opcon();
+		intake::opcon();
+		pros::delay(2);
 	}
 }

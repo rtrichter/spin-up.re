@@ -13,7 +13,7 @@ namespace intake
     // toggle running
     void toggle() { running = !running; }
     // run intake at velocity v if running is true
-    void run() { m::intake = v * running; }
+    void run(int speed) { m::intake = speed; }
 
     // runs during opcon
     void opcon()
@@ -21,7 +21,7 @@ namespace intake
         // if reverse button is being pressed, run reverse
         if (ctrl::master.get_digital(ctrl::intake_reverse))
         {
-            m::intake = v * -1;
+            run(v*-1);
             // exit opcon function before motor is reset by run()
             return;
         }
@@ -29,6 +29,6 @@ namespace intake
         if (ctrl::master.get_digital_new_press(ctrl::intake_toggle))
             toggle();
         // set intake speed
-        run();
+        run(v * running);
     }
 }
