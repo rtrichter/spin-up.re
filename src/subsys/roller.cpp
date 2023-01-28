@@ -5,8 +5,8 @@
 pros::Motor m::roller (p::roller, pros::E_MOTOR_GEARSET_18, false, pros::E_MOTOR_ENCODER_DEGREES);
 
 // define roller controls
-pros::controller_digital_e_t roller_down = pros::E_CONTROLLER_DIGITAL_B;
-pros::controller_digital_e_t roller_up = pros::E_CONTROLLER_DIGITAL_X;
+pros::controller_digital_e_t ctrl::roller_down = pros::E_CONTROLLER_DIGITAL_B;
+pros::controller_digital_e_t ctrl::roller_up = pros::E_CONTROLLER_DIGITAL_X;
 
 namespace roller
 {

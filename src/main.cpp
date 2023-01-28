@@ -4,6 +4,7 @@
 #include "subsys/flywheel.hpp"
 #include "subsys/intake.hpp"
 #include "subsys/roller.hpp"
+#include "subsys/expansion.hpp"
 
 /**
  * A callback function for LLEMU's center button.
@@ -86,6 +87,7 @@ void opcontrol() {
 		flywheel::opcon();
 		intake::opcon();
 		roller::opcon();
+		expansion::opcon();
 		pros::delay(2);
 	}
 }
