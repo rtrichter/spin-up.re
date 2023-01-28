@@ -29,5 +29,8 @@ deg2rot() degrees of bot spinning to rotation of motor based on wheelbase
 move_tank(distance, velocity)  
 rotate_tank(degrees, velocity)  
 
-
+# FLYWHEEL
+- set close and far speeds 
+- do not fire if flywheel is spinning slow
+- do not fire if feed is spinning
 
