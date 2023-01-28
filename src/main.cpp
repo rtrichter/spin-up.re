@@ -5,6 +5,7 @@
 #include "subsys/intake.hpp"
 #include "subsys/roller.hpp"
 #include "subsys/expansion.hpp"
+#include "subsys/logging.hpp"
 
 /**
  * A callback function for LLEMU's center button.
@@ -33,6 +34,7 @@ void initialize() {
 	pros::lcd::set_text(1, "Hello PROS User!");
 
 	pros::lcd::register_btn1_cb(on_center_button);
+	logging::init();
 }
 
 /**
@@ -81,6 +83,7 @@ void autonomous() {}
  */
 void opcontrol() {
 	
+	int count = 0;
 	while (true)
 	{
 		drive::opcon();
@@ -88,6 +91,8 @@ void opcontrol() {
 		intake::opcon();
 		roller::opcon();
 		expansion::opcon();
+		if (!(count%10))
+			logging::record();
 		pros::delay(2);
 	}
 }
