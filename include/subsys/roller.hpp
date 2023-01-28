@@ -1,5 +1,8 @@
 #include "main.h"
 
+#ifndef _ROLLER_H_
+#define _ROLLER_H_
+
 namespace p
 {
     inline const int roller = 12;
@@ -21,3 +24,5 @@ namespace roller
     inline const int v = 200;
     void opcon();
 }
+
+#endif
