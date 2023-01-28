@@ -62,6 +62,7 @@ namespace flywheel
             close = false;
         // update the flywheel speed
         set_speed();
+        spin(speed);
         if (ctrl::master.get_digital(ctrl::feed))
             feed();
 
