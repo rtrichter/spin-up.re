@@ -3,9 +3,7 @@
 #ifndef _GLOBALS_H_
 #define _GLOBALS_H_
 
-
 #define PI 3.141593
-
 
 namespace ctrl
 {
