@@ -1,6 +1,7 @@
 #include "main.h"
 
 #include "subsys/drive.hpp"
+#include "subsys/flywheel.hpp"
 
 /**
  * A callback function for LLEMU's center button.
@@ -79,5 +80,6 @@ void opcontrol() {
 	while (true)
 	{
 		drive::opcon();
+		flywheel::opcon();
 	}
 }
