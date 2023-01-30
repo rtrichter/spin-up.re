@@ -44,9 +44,62 @@ namespace logging
             m::names[i] << " position," <<
             m::names[i] << " power," <<
             m::names[i] << " torque," <<
-            m::names[i] << " voltage,";
+            m::names[i] << " voltage";
         }
     }
+
+    void bat_init()
+    {
+        // write column headers for the battery
+        log_file << "," <<
+        "battery capacity," <<
+        "battery current," <<
+        "battery temperature," <<
+        "battery voltage,";
+    }
+
+    void ctrl_init()
+    {
+        // write column headers for the battery
+        log_file << "," <<
+        "ctrl battery capacity," <<
+        "ctrl battery level," <<
+        "ctrl connected,"; 
+        for (int i=0; i<13; i++)
+        {
+            log_file << "," << ctrl::names[i];
+        }
+    }
+
+    void ctrl_data()
+    {
+        // write column headers for ctrl
+        log_file << "," <<
+        ctrl::master.get_battery_capacity() << "," <<
+        ctrl::master.get_battery_level() << "," <<
+        ctrl::master.is_connected();
+        for (int i=0; i<2; i++)
+        {
+            log_file << "," <<
+            ctrl::master.get_analog(ctrl::analog[i]);
+        }
+        for (int i=0; i<11; i++)
+        {
+            log_file << "," <<
+            ctrl::master.get_digital(ctrl::digital[i]);
+        }
+    }
+
+    void bat_data()
+    {
+        // write data for the battery
+        log_file << "," <<
+        pros::battery::get_capacity() << "," <<
+        pros::battery::get_current() << "," <<
+        pros::battery::get_temperature() << "," <<
+        pros::battery::get_voltage();
+    }
+
 
     void motor_data()
     {
@@ -65,11 +118,15 @@ namespace logging
         }
     }
 
+
+
     void init()
     {
         log_file.open(get_filename());
-        log_file << pros::millis();
-        motor_init();
+        log_file << pros::millis(); // 1
+        motor_init(); // 8**8
+        ctrl_init(); // 17
+        bat_init(); // 4
         log_file << "\n";
     }
 
@@ -77,6 +134,8 @@ namespace logging
     {
         log_file << pros::millis();
         motor_data();
+        ctrl_data();
+        bat_data();
         log_file << "\n";
     }
 }

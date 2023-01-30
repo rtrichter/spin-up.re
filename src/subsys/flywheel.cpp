@@ -32,8 +32,8 @@ namespace flywheel
     // spin the flywheel at a given velocity
     void spin(int velocity)
     {
-        m::flywheel1 = speed;
-        m::flywheel2 = speed;
+        m::flywheel1 = speed * running;
+        m::flywheel2 = speed * running;
     }
 
     // feed a disk into the flywheel
@@ -56,10 +56,10 @@ namespace flywheel
             toggle();
         // check if flywheel speed should be set to far
         if (ctrl::master.get_digital_new_press(ctrl::fw_far))
-            close = true;
+            close = false;
         // check if flywheel speed should be set to close
         if (ctrl::master.get_digital_new_press(ctrl::fw_close))
-            close = false;
+            close = true;
         // update the flywheel speed
         set_speed();
         spin(speed);

@@ -310,7 +310,8 @@
     },
     "upload_options": {
       "description": "spin-up program rewrite",
-      "icon": "robot"
+      "icon": "robot",
+      "slot": 2
     }
   }
 }

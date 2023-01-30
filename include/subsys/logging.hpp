@@ -31,7 +31,26 @@ namespace m
         "roller",
         "expansion"
     };
+}
 
+namespace ctrl
+{
+    inline pros::controller_analog_e_t analog[2] = {
+        left, right
+    };
+    inline pros::controller_digital_e_t digital[11] = {
+        fw_toggle, feed, fw_close, fw_far,
+        intake_toggle, intake_reverse,
+        roller_down, roller_up,
+        exp1, exp2, exp3
+    };
+    inline string names[13] = {
+        "left", "right",
+        "fw_toggle", "feed", "fw_close", "fw_far",
+        "intake_toggle", "intake_reverse",
+        "roller_down", "roller_up",
+        "exp1", "exp2", "exp3"
+    };
 }
 
 namespace logging
