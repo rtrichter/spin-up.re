@@ -4,7 +4,7 @@
 
 // define motors used for drive
 pros::Motor m::left (p::left, pros::E_MOTOR_GEARSET_18, false, pros::E_MOTOR_ENCODER_DEGREES);
-pros::Motor m::right (p::right, pros::E_MOTOR_GEARSET_18, false, pros::E_MOTOR_ENCODER_DEGREES);
+pros::Motor m::right (p::right, pros::E_MOTOR_GEARSET_18, true, pros::E_MOTOR_ENCODER_DEGREES);
 
 // define drive controls
 pros::controller_analog_e_t ctrl::left = pros::E_CONTROLLER_ANALOG_LEFT_Y;
