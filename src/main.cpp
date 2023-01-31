@@ -91,7 +91,7 @@ void opcontrol() {
 		intake::opcon();
 		roller::opcon();
 		expansion::opcon();
-		if (!(count%10))
+		if (!(count%50))
 			logging::record();
 		pros::delay(2);
 	}

@@ -1,4 +1,5 @@
 #include "subsys/logging.hpp"
+#include "pros/motors.h"
 
 namespace logging
 {
@@ -55,7 +56,7 @@ namespace logging
         "battery capacity," <<
         "battery current," <<
         "battery temperature," <<
-        "battery voltage,";
+        "battery voltage";
     }
 
     void ctrl_init()
@@ -64,7 +65,7 @@ namespace logging
         log_file << "," <<
         "ctrl battery capacity," <<
         "ctrl battery level," <<
-        "ctrl connected,"; 
+        "ctrl connected"; 
         for (int i=0; i<13; i++)
         {
             log_file << "," << ctrl::names[i];
@@ -107,14 +108,14 @@ namespace logging
         for (int i=0; i<8; i++)
         {
             log_file << "," <<
-            m::motors[i].get_target_velocity() << "," <<
-            m::motors[i].get_actual_velocity() << "," <<
-            m::motors[i].get_temperature() << "," <<
-            m::motors[i].get_efficiency() << "," <<
-            m::motors[i].get_position() << "," <<
-            m::motors[i].get_power() << "," <<
-            m::motors[i].get_torque() << "," <<
-            m::motors[i].get_voltage();
+            pros::c::motor_get_target_velocity(p::motors[i]) << "," <<
+            pros::c::motor_get_actual_velocity(p::motors[i]) << "," <<
+            pros::c::motor_get_temperature(p::motors[i]) << "," <<
+            pros::c::motor_get_efficiency(p::motors[i]) << "," <<
+            pros::c::motor_get_position(p::motors[i]) << "," <<
+            pros::c::motor_get_power(p::motors[i]) << "," <<
+            pros::c::motor_get_torque(p::motors[i]) << "," <<
+            pros::c::motor_get_voltage(p::motors[i]);
         }
     }
 
@@ -122,20 +123,25 @@ namespace logging
 
     void init()
     {
-        log_file.open(get_filename());
+        fname = get_filename();
+        log_file.open(fname, fstream::out);
         log_file << pros::millis(); // 1
         motor_init(); // 8**8
         ctrl_init(); // 17
         bat_init(); // 4
         log_file << "\n";
+        log_file.close();
     }
 
     void record()
     {
+        log_file.open(fname, fstream::app);
         log_file << pros::millis();
         motor_data();
         ctrl_data();
         bat_data();
         log_file << "\n";
+
+        log_file.close();
     }
 }

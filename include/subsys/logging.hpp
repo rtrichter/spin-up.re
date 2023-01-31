@@ -15,15 +15,20 @@ using namespace std;
 #ifndef _LOGGING_H_
 #define _LOGGING_H_
 
-namespace m
+namespace p
 {
-    inline pros::Motor motors[8] = {
+    inline const int motors[8] = 
+    {
         left, right,
-        flywheel1, flywheel2, feed,
+        flywheel1, flywheel2, feed, 
         intake,
         roller,
         expansion
     };
+}
+
+namespace m
+{
     inline string names[8] = {
         "left", "right",
         "flywheel1", "flywheel2", "feed",
@@ -58,7 +63,8 @@ namespace logging
     inline const string path = "/usd/spin-up/logs/";
     inline const string prefix = "log_";
     inline const string extension = ".csv"; 
-    inline ofstream log_file;
+    inline fstream log_file;
+    inline string fname;
     bool file_exists(const std::string& name);
     string get_filename();
     void motor_init();
