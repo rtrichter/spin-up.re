@@ -127,7 +127,7 @@ namespace logging
         log_file.open(fname, fstream::out);
         log_file << pros::millis(); // 1
         motor_init(); // 8**8
-        ctrl_init(); // 17
+        ctrl_init(); // 16
         bat_init(); // 4
         log_file << "\n";
         log_file.close();

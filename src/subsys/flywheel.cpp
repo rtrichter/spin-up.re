@@ -1,10 +1,11 @@
 #include "subsys/flywheel.hpp"
 #include "subsys/globals.hpp"
+#include <iostream>
 
 // define flywheel and feed motors
 pros::Motor m::flywheel1 (p::flywheel1, pros::E_MOTOR_GEARSET_06, true, pros::E_MOTOR_ENCODER_DEGREES);
 pros::Motor m::flywheel2 (p::flywheel2, pros::E_MOTOR_GEARSET_06, false, pros::E_MOTOR_ENCODER_DEGREES);
-pros::Motor m::feed (p::feed, pros::E_MOTOR_GEARSET_06, false, pros::E_MOTOR_ENCODER_DEGREES);
+pros::Motor m::feed (p::feed, pros::E_MOTOR_GEARSET_18, false, pros::E_MOTOR_ENCODER_DEGREES);
 
 // define flywheel and feed controls
 pros::controller_digital_e_t ctrl::fw_toggle = pros::E_CONTROLLER_DIGITAL_R1;
@@ -32,8 +33,9 @@ namespace flywheel
     // spin the flywheel at a given velocity
     void spin(int velocity)
     {
-        m::flywheel1 = speed * running;
-        m::flywheel2 = speed * running;
+        std::cout << velocity << " * " << running << " = " << velocity * running << "\n";
+        m::flywheel1.move_velocity(velocity * running);
+        m::flywheel2 .move_velocity(velocity * running);
     }
 
     // feed a disk into the flywheel
@@ -41,12 +43,12 @@ namespace flywheel
     void feed()
     {
         // do not try to feed a disc until feed pusher is done spinning
-        if (m::feed.get_actual_velocity() != 0) 
+        if (m::feed.get_actual_velocity()) 
             return;
         // do not shoot unless flywheel is at the correct speed
         if (m::flywheel1.get_actual_velocity() < speed)
             return;
-        m::feed.move_relative(360, 200);
+        m::feed.move_relative(363, 200);
     }
 
     void opcon()
