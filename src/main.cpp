@@ -6,6 +6,7 @@
 #include "subsys/roller.hpp"
 #include "subsys/expansion.hpp"
 #include "subsys/logging.hpp"
+#include "subsys/sens.hpp"
 
 /**
  * A callback function for LLEMU's center button.
@@ -34,7 +35,20 @@ void initialize() {
 	pros::lcd::set_text(1, "Hello PROS User!");
 
 	pros::lcd::register_btn1_cb(on_center_button);
+
+	// initialize logging system
 	logging::init();
+	// reset gyro
+	gyro::gyro.reset();
+	// set all motors to coast
+	m::left.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+	m::right.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+	m::feed.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+	m::flywheel1.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+	m::flywheel2.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+	m::roller.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+	m::intake.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+	m::expansion.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
 }
 
 /**

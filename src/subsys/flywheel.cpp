@@ -1,5 +1,5 @@
-#include "subsys/flywheel.hpp"
-#include "subsys/globals.hpp"
+#include "flywheel.hpp"
+#include "globals.hpp"
 
 // define flywheel and feed motors
 pros::Motor m::flywheel1 (p::flywheel1, pros::E_MOTOR_GEARSET_06, true, pros::E_MOTOR_ENCODER_DEGREES);

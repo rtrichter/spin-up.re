@@ -1,5 +1,5 @@
-#include "subsys/drive.hpp"
-#include "subsys/globals.hpp"
+#include "drive.hpp"
+#include "globals.hpp"
 #include <cmath>
 
 // define motors used for drive

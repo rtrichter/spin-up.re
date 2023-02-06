@@ -1,4 +1,4 @@
-#include "subsys/globals.hpp"
+#include "globals.hpp"
 
 
 pros::Controller ctrl::master(pros::E_CONTROLLER_MASTER);

@@ -1,5 +1,55 @@
-#include "subsys/logging.hpp"
+#include "logging.hpp"
 #include "pros/motors.h"
+
+#include "drive.hpp"
+#include "flywheel.hpp"
+#include "globals.hpp"
+#include "intake.hpp"
+#include "roller.hpp"
+#include "expansion.hpp"
+
+namespace p
+{
+    const int motors[8] = 
+    {
+        left, right,
+        flywheel1, flywheel2, feed, 
+        intake,
+        roller,
+        expansion
+    };
+}
+
+namespace m
+{
+    string names[8] = {
+        "left", "right",
+        "flywheel1", "flywheel2", "feed",
+        "intake",
+        "roller",
+        "expansion"
+    };
+}
+
+namespace ctrl
+{
+    pros::controller_analog_e_t analog[2] = {
+        left, right
+    };
+    pros::controller_digital_e_t digital[11] = {
+        fw_toggle, feed, fw_close, fw_far,
+        intake_toggle, intake_reverse,
+        roller_down, roller_up,
+        exp1, exp2, exp3
+    };
+    string names[13] = {
+        "left", "right",
+        "fw_toggle", "feed", "fw_close", "fw_far",
+        "intake_toggle", "intake_reverse",
+        "roller_down", "roller_up",
+        "exp1", "exp2", "exp3"
+    };
+}
 
 namespace logging
 {

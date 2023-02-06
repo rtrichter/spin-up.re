@@ -1,5 +1,5 @@
-#include "subsys/intake.hpp"
-#include "subsys/globals.hpp"
+#include "intake.hpp"
+#include "globals.hpp"
 
 // define intake motor
 pros::Motor m::intake(p::intake, pros::E_MOTOR_GEARSET_18, false, pros::E_MOTOR_ENCODER_DEGREES);

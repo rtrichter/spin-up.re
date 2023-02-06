@@ -1,5 +1,5 @@
-#include "subsys/roller.hpp"
-#include "subsys/globals.hpp"
+#include "roller.hpp"
+#include "globals.hpp"
 
 // define roller motors
 pros::Motor m::roller (p::roller, pros::E_MOTOR_GEARSET_18, false, pros::E_MOTOR_ENCODER_DEGREES);
