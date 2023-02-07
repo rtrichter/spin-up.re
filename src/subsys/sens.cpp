@@ -5,7 +5,7 @@ namespace sens
 
 
     pros::Rotation left(p::left_r, false);
-    pros::Rotation right(p::right_r, false);
+    pros::Rotation right(p::right_r, true);
     pros::Imu gyro(p::gyro);
 
     float avg_drive_encoder()

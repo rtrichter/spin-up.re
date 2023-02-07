@@ -20,8 +20,9 @@ namespace drive
         // (1 rotation / 360 degrees) *
         // (4PI inches / 1 rotation) *
         // (1 tile / 24 inches) *
-        // simplifies to centidegrees*PI/2160
-        return degrees*PI/2160;
+        // (2/1) (gear ration)
+        // simplifies to centidegrees*PI/1080
+        return degrees*PI/1080;
     }
     // tiles to degrees (used for centitiles to centidegrees)
     float t2d(int tiles)
@@ -30,8 +31,9 @@ namespace drive
         // (24 inches / 1 tile)
         // (1 rotation / 4PI inches)
         // (360 degrees / 1 rotation)
+        // (1/2) (gear ration)
         // simplifies to ct*2160/PI
-        return tiles*2160/PI;
+        return tiles*1080/PI;
     }
 
     void translate(int distance, int velocity) 

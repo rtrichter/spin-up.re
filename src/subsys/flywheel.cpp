@@ -32,8 +32,8 @@ namespace flywheel
     // spin the flywheel at a given velocity
     void spin(int velocity)
     {
-        m::flywheel1 = speed * running;
-        m::flywheel2 = speed * running;
+        m::flywheel1.move_velocity(speed);
+        m::flywheel2.move_velocity(speed);
     }
 
     // feed a disk into the flywheel
@@ -62,7 +62,7 @@ namespace flywheel
             close = true;
         // update the flywheel speed
         set_speed();
-        spin(speed);
+        spin(speed*running);
         if (ctrl::master.get_digital(ctrl::feed))
             feed();
 

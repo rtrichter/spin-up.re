@@ -84,9 +84,9 @@ void competition_initialize() {}
  * from where it left off.
  */
 void autonomous() {
+	drive::translate(200, 100);
+	pros::delay(500);
 	drive::rotate(180, 100);
-	cout << "done with first rotate" << endl;
-	drive::rotate(-90, 200);
 }
 
 /**

@@ -7,8 +7,8 @@
 namespace p
 {
     inline const int gyro = 1;
-    inline const int left_r = 20;
-    inline const int right_r = 19;
+    inline const int left_r = 19;
+    inline const int right_r = 20;
 }
 
 
