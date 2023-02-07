@@ -1,5 +1,6 @@
 #include "main.h"
 
+#include "pros/misc.h"
 #include "subsys/drive.hpp"
 #include "subsys/flywheel.hpp"
 #include "subsys/intake.hpp"
@@ -7,6 +8,8 @@
 #include "subsys/expansion.hpp"
 #include "subsys/logging.hpp"
 #include "subsys/sens.hpp"
+#include "subsys/globals.hpp"
+#include "subsys/auton.hpp"
 
 /**
  * A callback function for LLEMU's center button.
@@ -80,7 +83,11 @@ void competition_initialize() {}
  * will be stopped. Re-enabling the robot will restart the task, not re-start it
  * from where it left off.
  */
-void autonomous() {}
+void autonomous() {
+	drive::rotate(180, 100);
+	cout << "done with first rotate" << endl;
+	drive::rotate(-90, 200);
+}
 
 /**
  * Runs the operator control code. This function will be started in its own task
@@ -107,6 +114,6 @@ void opcontrol() {
 		expansion::opcon();
 		if (!(count%50))
 			logging::record();
-		pros::delay(2);
+		pros::delay(5);
 	}
 }

@@ -32,13 +32,14 @@ namespace drive
     }
     void rotate(int degrees, int velocity)
     {
+        cout << "trying to rotate" << endl;
         int initial_rotation = gyro::gyro.get_rotation();
         int direction = abs(degrees) / degrees;
         set_tank(velocity * direction, -velocity * direction);
-        while (fabs(gyro::gyro.get_rotation()-initial_rotation) < abs(degrees))
+        while (fabs(gyro::gyro.get_rotation()-initial_rotation) < (abs(degrees)-30))
             pros::delay(10);
         // brief brake
-        set_tank(-velocity*direction, velocity*direction);
+        set_tank(-Vmax*direction, Vmax*direction);
         // wait to come to rest
         int r0;
         int r=gyro::gyro.get_rotation(); // set to r0 in do/while
@@ -49,28 +50,32 @@ namespace drive
         } while (r != r0); // loop until not rotating
         set_tank(0, 0);
         // if degrees and gyro rotation are not the same
-        if (abs(degrees - int(gyro::gyro.get_rotation()-initial_rotation)))
-            // rotate the amount required to fix rotation at half speed
-            // recursive until within 1 degree of target according to gyro
-            rotate(degrees - gyro::gyro.get_rotation()-initial_rotation, velocity/2);
-        // // if overshot
-        // if (abs(int(gyro::gyro.get_rotation()-initial_rotation)) > abs(degrees))
-        // {
-        //     set_tank(0.5 * -velocity * direction, 0.5 * velocity * direction);
-        //     while (fabs(gyro::gyro.get_rotation()-initial_rotation) > abs(degrees))
-        //         pros::delay(10);
-        //     set_tank(velocity*direction, -velocity*direction);
-        // }
-        // // if undershot
-        // else if (fabs(gyro::gyro.get_rotation()-initial_rotation) < abs(degrees))
-        // {
-        //     set_tank(0.5 * velocity * direction, 0.5 * -velocity * direction);
-        //     while (fabs(gyro::gyro.get_rotation()) < abs(degrees))
-        //         pros::delay(10);
-        //     set_tank(-velocity*direction, velocity*direction);
-        // }
-        // set_tank(0,0);
+        // if (abs(degrees - int(gyro::gyro.get_rotation()-initial_rotation)))
+        //     // rotate the amount required to fix rotation at half speed
+        //     // recursive until within 1 degree of target according to gyro
+        //     rotate(degrees - gyro::gyro.get_rotation()-initial_rotation, velocity/2);
 
+
+
+        // if overshot
+        if (abs(int(gyro::gyro.get_rotation()-initial_rotation)) > abs(degrees))
+        {
+            set_tank(-50 * direction, 50 * direction);
+            while (fabs(gyro::gyro.get_rotation()-initial_rotation) > abs(degrees))
+                {cout << "fixing overshoot" << endl;
+                pros::delay(10);}
+            set_tank(velocity*direction, -velocity*direction);
+        }
+        // if undershot
+        else if (fabs(gyro::gyro.get_rotation()-initial_rotation) < abs(degrees))
+        {
+            set_tank(50 * direction, -50 * direction);
+            while (fabs(gyro::gyro.get_rotation()) < abs(degrees))
+            {    cout << "fixing undershoot" << endl;
+                pros::delay(10);}
+            set_tank(-velocity*direction, velocity*direction);
+        }
+        set_tank(0,0);
     }
 
     void rotate_to(int degrees, int velocity)
