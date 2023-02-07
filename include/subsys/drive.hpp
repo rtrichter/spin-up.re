@@ -25,10 +25,10 @@ namespace ctrl
 namespace drive
 {
     inline const int Vmax = 200;
-    inline const float wheel_size = 3.75;
-    inline const float wheelbase = 16;
+    inline const float wheel_size = 4;
+    inline const float wheelbase = 14;
     int get_mapped_input(pros::controller_analog_e_t axis);
-    void set_tank(int velocity);
+    void set_tank(int left, int right);
 
     float in2rot(float distance);
     float deg2rot(float degrees);

@@ -1,11 +1,15 @@
 #include "main.h"
 
+#include "pros/misc.h"
 #include "subsys/drive.hpp"
 #include "subsys/flywheel.hpp"
 #include "subsys/intake.hpp"
 #include "subsys/roller.hpp"
 #include "subsys/expansion.hpp"
 #include "subsys/logging.hpp"
+#include "subsys/sens.hpp"
+#include "subsys/globals.hpp"
+#include "subsys/auton.hpp"
 
 /**
  * A callback function for LLEMU's center button.
@@ -34,7 +38,20 @@ void initialize() {
 	pros::lcd::set_text(1, "Hello PROS User!");
 
 	pros::lcd::register_btn1_cb(on_center_button);
+
+	// initialize logging system
 	logging::init();
+	// reset gyro
+	sens::gyro.reset();
+	// set all motors to coast
+	m::left.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+	m::right.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+	m::feed.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+	m::flywheel1.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+	m::flywheel2.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+	m::roller.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+	m::intake.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+	m::expansion.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
 }
 
 /**
@@ -66,7 +83,11 @@ void competition_initialize() {}
  * will be stopped. Re-enabling the robot will restart the task, not re-start it
  * from where it left off.
  */
-void autonomous() {}
+void autonomous() {
+	drive::translate(200, 100);
+	pros::delay(500);
+	drive::rotate(180, 100);
+}
 
 /**
  * Runs the operator control code. This function will be started in its own task
@@ -93,6 +114,6 @@ void opcontrol() {
 		expansion::opcon();
 		if (!(count%50))
 			logging::record();
-		pros::delay(2);
+		pros::delay(5);
 	}
 }

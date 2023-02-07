@@ -1,5 +1,5 @@
-#include "subsys/expansion.hpp"
-#include "subsys/globals.hpp"
+#include "expansion.hpp"
+#include "globals.hpp"
 
 // define motors
 pros::Motor m::expansion (p::expansion, pros::E_MOTOR_GEARSET_18, false, pros::E_MOTOR_ENCODER_DEGREES);

@@ -1,6 +1,5 @@
 #include "subsys/flywheel.hpp"
 #include "subsys/globals.hpp"
-#include <iostream>
 
 // define flywheel and feed motors
 pros::Motor m::flywheel1 (p::flywheel1, pros::E_MOTOR_GEARSET_06, true, pros::E_MOTOR_ENCODER_DEGREES);
@@ -33,7 +32,6 @@ namespace flywheel
     // spin the flywheel at a given velocity
     void spin(int velocity)
     {
-        std::cout << velocity << " * " << running << " = " << velocity * running << "\n";
         m::flywheel1.move_velocity(velocity * running);
         m::flywheel2 .move_velocity(velocity * running);
     }
@@ -64,7 +62,7 @@ namespace flywheel
             close = true;
         // update the flywheel speed
         set_speed();
-        spin(speed);
+        spin(speed*running);
         if (ctrl::master.get_digital(ctrl::feed))
             feed();
 
