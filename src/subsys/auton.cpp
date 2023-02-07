@@ -12,75 +12,103 @@
 
 namespace drive
 {
+
+    // degrees to tiles (used for centidegrees to centitiles)
+    float d2t(int degrees)
+    {
+        // degrees *
+        // (1 rotation / 360 degrees) *
+        // (4PI inches / 1 rotation) *
+        // (1 tile / 24 inches) *
+        // simplifies to centidegrees*PI/2160
+        return degrees*PI/2160;
+    }
+    // tiles to degrees (used for centitiles to centidegrees)
+    float t2d(int tiles)
+    {
+        // tiles *
+        // (24 inches / 1 tile)
+        // (1 rotation / 4PI inches)
+        // (360 degrees / 1 rotation)
+        // simplifies to ct*2160/PI
+        return tiles*2160/PI;
+    }
+
     void translate(int distance, int velocity) 
     {
-        int direction = abs(distance) / distance;
-        int x=0;
-        int v=0;
-        int v0=0;
+        int direction = abs(distance)/distance;
+        sens::tare_drive_encoders();
         set_tank(velocity*direction, velocity*direction);
-        int t0 = pros::millis();
-        int t;
-        while (abs(x) < abs(distance))
-        {
-            t = pros::millis(); 
-            v0 =v;
-            v += gyro::get_accel_x()*(t-t0);
-            x += (v+v0)*(t-t0)/2;
+        // move until you get to target position
+        while (d2t(sens::avg_drive_encoder())*direction < (distance-30))
             pros::delay(10);
-        }
+        // brake
+        set_tank(-velocity*direction, -velocity*direction);
+        while (sens::avg_drive_encoder_velocity()*direction > 0)
+            pros::delay(10);
+        // turn off drive motors when the bot comes to rest
+        set_tank(0,0);
+        // correct overshoot
+        int error = d2t(sens::avg_drive_encoder())*direction - distance;
+        if (abs(error) > 30)
+            // equation: (x degrees/0.1 s)(1rotation/360degrees)(60s/min)()
+            translate(error, abs(t2d(error*100)/6));
     }
+
     void rotate(int degrees, int velocity)
     {
-        cout << "trying to rotate" << endl;
-        int initial_rotation = gyro::gyro.get_rotation();
+        int initial_rotation = sens::gyro.get_rotation();
         int direction = abs(degrees) / degrees;
         set_tank(velocity * direction, -velocity * direction);
-        while (fabs(gyro::gyro.get_rotation()-initial_rotation) < (abs(degrees)-30))
+        while (fabs(sens::gyro.get_rotation()-initial_rotation) < (abs(degrees)-30))
             pros::delay(10);
         // brief brake
-        set_tank(-Vmax*direction, Vmax*direction);
+        set_tank(-velocity*direction, velocity*direction);
         // wait to come to rest
         int r0;
-        int r=gyro::gyro.get_rotation(); // set to r0 in do/while
+        int r=sens::gyro.get_rotation(); // set to r0 in do/while
         do {
             r0=r;
             pros::delay(10);
-            r = gyro::gyro.get_rotation();
+            r = sens::gyro.get_rotation();
         } while (r != r0); // loop until not rotating
         set_tank(0, 0);
         // if degrees and gyro rotation are not the same
-        // if (abs(degrees - int(gyro::gyro.get_rotation()-initial_rotation)))
-        //     // rotate the amount required to fix rotation at half speed
-        //     // recursive until within 1 degree of target according to gyro
-        //     rotate(degrees - gyro::gyro.get_rotation()-initial_rotation, velocity/2);
+        int error = (sens::gyro.get_rotation()-initial_rotation) - degrees;
+        if (error > 2)
+            rotate(error, abs(error)*35/6);
+
+        // // if (abs(degrees - int(sens::gyro.get_rotation()-initial_rotation)))
+        // //     // rotate the amount required to fix rotation at half speed
+        // //     // recursive until within 1 degree of target according to gyro
+        // //     rotate(degrees - sens::gyro.get_rotation()-initial_rotation, velocity/2);
 
 
 
-        // if overshot
-        if (abs(int(gyro::gyro.get_rotation()-initial_rotation)) > abs(degrees))
-        {
-            set_tank(-50 * direction, 50 * direction);
-            while (fabs(gyro::gyro.get_rotation()-initial_rotation) > abs(degrees))
-                {cout << "fixing overshoot" << endl;
-                pros::delay(10);}
-            set_tank(velocity*direction, -velocity*direction);
-        }
-        // if undershot
-        else if (fabs(gyro::gyro.get_rotation()-initial_rotation) < abs(degrees))
-        {
-            set_tank(50 * direction, -50 * direction);
-            while (fabs(gyro::gyro.get_rotation()) < abs(degrees))
-            {    cout << "fixing undershoot" << endl;
-                pros::delay(10);}
-            set_tank(-velocity*direction, velocity*direction);
-        }
-        set_tank(0,0);
+        // // if overshot
+        // if (abs(int(sens::gyro.get_rotation()-initial_rotation)) > abs(degrees))
+        // {
+        //     set_tank(-50 * direction, 50 * direction);
+        //     while (fabs(sens::gyro.get_rotation()-initial_rotation) > abs(degrees))
+        //         {cout << "fixing overshoot" << endl;
+        //         pros::delay(10);}
+        //     set_tank(velocity*direction, -velocity*direction);
+        // }
+        // // if undershot
+        // else if (fabs(sens::gyro.get_rotation()-initial_rotation) < abs(degrees))
+        // {
+        //     set_tank(50 * direction, -50 * direction);
+        //     while (fabs(sens::gyro.get_rotation()) < abs(degrees))
+        //     {    cout << "fixing undershoot" << endl;
+        //         pros::delay(10);}
+        //     set_tank(-velocity*direction, velocity*direction);
+        // }
+        // set_tank(0,0);
     }
 
     void rotate_to(int degrees, int velocity)
     {
-        int delta_theta = degrees - gyro::get_direction();
+        int delta_theta = degrees - sens::get_direction();
         if (delta_theta <= 180)
             rotate(delta_theta, velocity);
         else

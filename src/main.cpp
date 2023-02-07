@@ -42,7 +42,7 @@ void initialize() {
 	// initialize logging system
 	logging::init();
 	// reset gyro
-	gyro::gyro.reset();
+	sens::gyro.reset();
 	// set all motors to coast
 	m::left.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
 	m::right.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);

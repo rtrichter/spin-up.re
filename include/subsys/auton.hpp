@@ -11,7 +11,7 @@ namespace drive
     x is horizontal from drivers pov
     y is vertical from drivers pov
     the driver's low goal is 0,0
-    one tile = 100 distance units 
+    one tile = 100 centitiles (ct) 
     rotations:
     +y = 0
     -y = 180
