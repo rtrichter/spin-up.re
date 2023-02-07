@@ -32,8 +32,8 @@ namespace flywheel
     // spin the flywheel at a given velocity
     void spin(int velocity)
     {
-        m::flywheel1.move_velocity(speed);
-        m::flywheel2.move_velocity(speed);
+        m::flywheel1.move_velocity(velocity * running);
+        m::flywheel2 .move_velocity(velocity * running);
     }
 
     // feed a disk into the flywheel
@@ -41,12 +41,12 @@ namespace flywheel
     void feed()
     {
         // do not try to feed a disc until feed pusher is done spinning
-        if (m::feed.get_actual_velocity() != 0) 
+        if (m::feed.get_actual_velocity()) 
             return;
         // do not shoot unless flywheel is at the correct speed
         if (m::flywheel1.get_actual_velocity() < speed)
             return;
-        m::feed.move_relative(360, 200);
+        m::feed.move_relative(363, 200);
     }
 
     void opcon()

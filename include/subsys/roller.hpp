@@ -5,7 +5,7 @@
 
 namespace p
 {
-    inline const int roller = 12;
+    inline const int roller = 7;
 }
 
 namespace m
@@ -21,7 +21,7 @@ namespace ctrl
 
 namespace roller
 {
-    inline const int v = 200;
+    inline const int v = 100;
     void opcon();
 }
 
