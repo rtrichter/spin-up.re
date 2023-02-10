@@ -36,7 +36,7 @@ namespace drive
     }
 
     // runs repeatedly during main's opcon function
-    void opcon()
+   void opcon()
     {
         int l = get_mapped_input(ctrl::left);
         int r = get_mapped_input(ctrl::right);

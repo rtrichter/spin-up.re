@@ -5,7 +5,7 @@
 
 namespace p
 {
-    inline const int expansion = 20;
+    inline const int expansion = 14;
 }
 
 namespace m

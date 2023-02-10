@@ -32,21 +32,31 @@ namespace flywheel
     // spin the flywheel at a given velocity
     void spin(int velocity)
     {
-        m::flywheel1.move_velocity(velocity * running);
-        m::flywheel2 .move_velocity(velocity * running);
+        // for auton purposes (ensures feed flywheel speed safety still works)
+        speed = velocity;
+        m::flywheel1.move_velocity(velocity);
+        m::flywheel2 .move_velocity(velocity);
     }
 
     // feed a disk into the flywheel
     // aka shoot
-    void feed()
+    int feed()
     {
         // do not try to feed a disc until feed pusher is done spinning
         if (m::feed.get_actual_velocity()) 
-            return;
+        {
+            cout << "still feeding" << endl;
+            return 0;
+        }
         // do not shoot unless flywheel is at the correct speed
-        if (m::flywheel1.get_actual_velocity() < speed)
-            return;
-        m::feed.move_relative(363, 200);
+        if (abs(m::flywheel1.get_actual_velocity() - speed)>10)
+        {
+            cout << "bad flywheel speed: " << m::flywheel1.get_actual_velocity() - speed << endl;
+            return 0;
+        }
+        m::feed.move_relative(360, 200);
+        pros::delay(50);
+        return 1;
     }
 
     void opcon()

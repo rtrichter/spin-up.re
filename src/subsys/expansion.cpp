@@ -13,7 +13,10 @@ namespace expansion
 {
     void shoot()
     {
-        m::expansion.move_relative(360, 200);
+        static bool fired = false;
+        if (!fired)
+            m::expansion.move_relative(60, 200);
+        fired = true;
     }
 
     void opcon()

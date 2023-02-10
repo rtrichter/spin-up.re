@@ -28,5 +28,24 @@ namespace drive
     void moveto(int x, int y, int rotation);
 }
 
+namespace flywheel
+{
+    int repeat_fire(int repeats, int timeout=10000);
+}
+
+namespace roller
+{
+    int auto_roll(int direction, int timeout=10000);
+}
+
+namespace routines
+{
+    void left_low();
+    void left_high();
+    void right_low();
+    void right_high();
+    void skills();
+}
+
 
 #endif

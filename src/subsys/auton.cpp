@@ -13,7 +13,7 @@
 namespace drive
 {
 
-    // degrees to tiles (used for centidegrees to centitiles)
+    // degrees to tiles (used for degrees to tiles)
     float d2t(int degrees)
     {
         // degrees *
@@ -21,10 +21,10 @@ namespace drive
         // (4PI inches / 1 rotation) *
         // (1 tile / 24 inches) *
         // (2/1) (gear ration)
-        // simplifies to centidegrees*PI/1080
+        // simplifies to degrees*PI/1080
         return degrees*PI/1080;
     }
-    // tiles to degrees (used for centitiles to centidegrees)
+    // tiles to degrees (used for tiles to degrees)
     float t2d(int tiles)
     {
         // tiles *
@@ -32,7 +32,7 @@ namespace drive
         // (1 rotation / 4PI inches)
         // (360 degrees / 1 rotation)
         // (1/2) (gear ration)
-        // simplifies to ct*2160/PI
+        // simplifies to tiles*1080/PI
         return tiles*1080/PI;
     }
 
@@ -40,21 +40,31 @@ namespace drive
     {
         int direction = abs(distance)/distance;
         sens::tare_drive_encoders();
+        cout << d2t(sens::avg_drive_encoder()*direction) << endl;
         set_tank(velocity*direction, velocity*direction);
         // move until you get to target position
-        while (d2t(sens::avg_drive_encoder())*direction < (distance-30))
+        // while (d2t(sens::avg_drive_encoder())*direction < (distance-10))
+        // *direction to make sure it is positive
+        // could use abs but direction used for consistency with velocity stopping check
+        while (d2t(sens::avg_drive_encoder()*direction)<(distance*direction-10))
+        {
             pros::delay(10);
+        }
         // brake
-        set_tank(-velocity*direction, -velocity*direction);
-        while (sens::avg_drive_encoder_velocity()*direction > 0)
+        set_tank(-4*direction, -4*direction);
+        // wait until the drivetrain stops spinning
+        // *direction makes velocity go from positive to negative
+        while (sens::avg_drive_encoder_velocity()*direction > 0) 
             pros::delay(10);
         // turn off drive motors when the bot comes to rest
         set_tank(0,0);
         // correct overshoot
-        int error = d2t(sens::avg_drive_encoder())*direction - distance;
-        if (abs(error) > 30)
+        int error = d2t(sens::avg_drive_encoder()) - distance;
+        if (error>1)
+        {
             // equation: (x degrees/0.1 s)(1rotation/360degrees)(60s/min)()
             translate(error, abs(t2d(error*100)/6));
+        }
     }
 
     void rotate(int degrees, int velocity)
@@ -62,10 +72,11 @@ namespace drive
         int initial_rotation = sens::gyro.get_rotation();
         int direction = abs(degrees) / degrees;
         set_tank(velocity * direction, -velocity * direction);
-        while (fabs(sens::gyro.get_rotation()-initial_rotation) < (abs(degrees)-30))
+        do
             pros::delay(10);
+        while (fabs(sens::gyro.get_rotation()-initial_rotation) < (abs(degrees)-30));
         // brief brake
-        set_tank(-velocity*direction, velocity*direction);
+        set_tank(-2*direction, 2*direction);
         // wait to come to rest
         int r0;
         int r=sens::gyro.get_rotation(); // set to r0 in do/while
@@ -74,38 +85,15 @@ namespace drive
             pros::delay(10);
             r = sens::gyro.get_rotation();
         } while (r != r0); // loop until not rotating
+        // stop drive when the bot comes to rest
         set_tank(0, 0);
-        // if degrees and gyro rotation are not the same
+        // correct any error
         int error = (sens::gyro.get_rotation()-initial_rotation) - degrees;
-        if (error > 2)
+        cout << "rotate error: " << error << endl;
+        if (error)
             rotate(error, abs(error)*35/6);
-
-        // // if (abs(degrees - int(sens::gyro.get_rotation()-initial_rotation)))
-        // //     // rotate the amount required to fix rotation at half speed
-        // //     // recursive until within 1 degree of target according to gyro
-        // //     rotate(degrees - sens::gyro.get_rotation()-initial_rotation, velocity/2);
-
-
-
-        // // if overshot
-        // if (abs(int(sens::gyro.get_rotation()-initial_rotation)) > abs(degrees))
-        // {
-        //     set_tank(-50 * direction, 50 * direction);
-        //     while (fabs(sens::gyro.get_rotation()-initial_rotation) > abs(degrees))
-        //         {cout << "fixing overshoot" << endl;
-        //         pros::delay(10);}
-        //     set_tank(velocity*direction, -velocity*direction);
-        // }
-        // // if undershot
-        // else if (fabs(sens::gyro.get_rotation()-initial_rotation) < abs(degrees))
-        // {
-        //     set_tank(50 * direction, -50 * direction);
-        //     while (fabs(sens::gyro.get_rotation()) < abs(degrees))
-        //     {    cout << "fixing undershoot" << endl;
-        //         pros::delay(10);}
-        //     set_tank(-velocity*direction, velocity*direction);
-        // }
-        // set_tank(0,0);
+        else
+            cout << sens::get_direction() << endl;
     }
 
     void rotate_to(int degrees, int velocity)
@@ -127,9 +115,15 @@ namespace drive
         }
         else 
         {
-            theta = atan(float(x)/y)*180/PI;
+            theta = atan(fabs(float(x)/y))*180/PI;
         }
         int quadrant = (x<0) + (y<0)*2;
+        /*
+        0 = q1
+        1 = q2
+        2 = q4
+        3 = q3 
+        */
         switch (quadrant)
         {
             // quadrant 1 has no change
@@ -153,5 +147,124 @@ namespace drive
         translate(dist, velocity);
         // rotate to desired rotation
         rotate_to(rotation, velocity);
+    }
+}
+
+namespace flywheel
+{
+    int repeat_fire(int repeats, int timeout)
+    {
+        int start_ts = pros::millis();
+        for (int i=0; i<repeats; i=i)
+        {
+            // returns 1 on success which breaks out of the loop after 2 shots
+            i += flywheel::feed();
+            pros::delay(10);
+            if ((pros::millis() - start_ts)>timeout)
+                return 0;
+        }
+        return 1;
+    }
+}
+
+namespace roller
+{
+    int auto_roll(int direction, int timeout)
+    {
+        int start_ts = pros::millis();
+        drive::set_tank(-100, -100);
+        pros::delay(200);
+        while (sens::avg_drive_encoder_velocity())
+        {
+            pros::delay(10);
+            if (pros::millis()-start_ts > timeout)
+                return 0;
+        }
+        // // spin roller some amount
+        m::roller.move_relative(70*direction, 100);
+        drive::set_tank(0,0);
+        return 1;
+    }
+}
+
+namespace routines
+{
+    void right_low()
+    {
+        // start flywheel (SLOW)
+        flywheel::spin(250);
+        // // shoot two discs 
+        // for (int i=0; i<2; i=i)
+        // {
+        //     // returns 1 on success which breaks out of the loop after 2 shots
+        //     i += flywheel::feed();
+        //     pros::delay(10);
+        // }
+        flywheel::repeat_fire(2);
+        flywheel::spin(0);
+        // move back 1 tile ish
+        drive::translate(-70, 100);
+        // // turn 90 degrees
+        drive::rotate_to(90, 100);
+        // // push against roller
+        roller::auto_roll(-1);
+    }
+
+    void left_low()
+    {
+        // start flywheel
+        flywheel::spin(250);
+        // spin roller
+        roller::auto_roll(-1);
+        // move away
+        drive::translate(20, 100);
+        // turn
+        drive::rotate_to(-90, 100);
+        // shoot twice
+        flywheel::repeat_fire(2);
+        // stop flywheel
+        flywheel::spin(0);
+    }
+
+    void skills()
+    {
+        // shoot 2 high goals
+        // start flywheel
+        // flywheel::spin(flywheel::Vclose);
+        // // aim for high goal
+        // flywheel::repeat_fire(2);
+        // flywheel::spin(0);
+
+
+
+
+        // back up 
+        drive::translate(-230, 150);
+        // turn to first roller
+        drive::rotate_to(90, 150);
+        // roll
+        roller::auto_roll(1);
+        // move out
+        drive::translate(100, 150);
+        // turn to 2nd roller
+        drive::rotate_to(0, 150);
+        // turn roller
+        roller::auto_roll(1);
+        // move out
+        drive::translate(100, 150);
+        // turn towards opposite corner
+        drive::rotate_to(50, 150);
+        // drive a few miles forward
+        drive::translate(500, 150);
+        // turn for first roller
+        // push against roller
+        // turn roller
+        // move out
+        // turn to last roller
+        // push against roller
+        // spin roller
+        // move away
+        // turn for expansion
+        // fire expansion
     }
 }

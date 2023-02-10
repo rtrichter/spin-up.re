@@ -2,9 +2,7 @@
 
 namespace sens
 {
-
-
-    pros::Rotation left(p::left_r, false);
+    pros::Rotation left(p::left_r, true);
     pros::Rotation right(p::right_r, true);
     pros::Imu gyro(p::gyro);
 
@@ -27,7 +25,7 @@ namespace sens
     // returns [0, 360)
     int get_direction()
     {
-        return (360 - int(gyro.get_rotation()) % 360)*bool(int(gyro.get_rotation())%360);
+        return (int(gyro.get_rotation()) % 360)*bool(int(gyro.get_rotation())%360);
     }
     float get_accel_x()
     {

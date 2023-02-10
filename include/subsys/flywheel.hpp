@@ -35,7 +35,7 @@ namespace flywheel
     void toggle();
     void set_speed();
     void spin(int velocity);
-    void feed();
+    int feed();
     void opcon();
 
 }
