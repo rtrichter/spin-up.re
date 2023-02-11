@@ -69,14 +69,26 @@ namespace drive
 
     void rotate(int degrees, int velocity)
     {
-        int initial_rotation = sens::gyro.get_rotation();
-        int direction = abs(degrees) / degrees;
-        set_tank(velocity * direction, -velocity * direction);
-        do
-            pros::delay(10);
-        while (fabs(sens::gyro.get_rotation()-initial_rotation) < (abs(degrees)-30));
+        int delta_theta = degrees - sens::get_direction();
+        int direction;
+
+        if (delta_theta > 0)
+        {
+            direction = 1;
+            set_tank(velocity, -velocity);
+            do {
+                pros::delay(10);
+            }while (sens::get_direction()<degrees);
+        }
+        else
+        {
+            set_tank(-velocity, velocity);
+            do {
+                pros::delay(10);
+            }while (sens::get_direction()>degrees);
+        }
         // brief brake
-        set_tank(-2*direction, 2*direction);
+        set_tank(-20*direction, 20*direction);
         // wait to come to rest
         int r0;
         int r=sens::gyro.get_rotation(); // set to r0 in do/while
@@ -88,12 +100,9 @@ namespace drive
         // stop drive when the bot comes to rest
         set_tank(0, 0);
         // correct any error
-        int error = (sens::gyro.get_rotation()-initial_rotation) - degrees;
-        cout << "rotate error: " << error << endl;
+        int error = abs((sens::gyro.get_rotation())- degrees);
         if (error)
-            rotate(error, abs(error)*35/6);
-        else
-            cout << sens::get_direction() << endl;
+            rotate(degrees, error*35/6);
     }
 
     void rotate_to(int degrees, int velocity)
