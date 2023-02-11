@@ -78,25 +78,37 @@ namespace drive
             set_tank(velocity, -velocity);
             do {
                 pros::delay(10);
-            }while (sens::get_direction()<degrees);
+            }while (sens::get_direction()<degrees-5);
         }
         else
         {
             set_tank(-velocity, velocity);
             do {
                 pros::delay(10);
-            }while (sens::get_direction()>degrees);
+            }while (sens::get_direction()>degrees+5);
         }
         // brief brake
+
+        int r0 = sens::get_direction();
+        pros::delay(10);
+        int r = sens::get_direction();
         set_tank(-20*direction, 20*direction);
-        // wait to come to rest
-        int r0;
-        int r=sens::gyro.get_rotation(); // set to r0 in do/while
-        do {
+        while (r!=r0)
+        {
             r0=r;
             pros::delay(10);
-            r = sens::gyro.get_rotation();
-        } while (r != r0); // loop until not rotating
+            r=sens::get_direction();
+        }
+
+        // set_tank(-20*direction, 20*direction);
+        // // wait to come to rest
+        // int r0;
+        // int r=sens::gyro.get_rotation(); // set to r0 in do/while
+        // do {
+        //     r0=r;
+        //     pros::delay(10);
+        //     r = sens::gyro.get_rotation();
+        // } while (r != r0); // loop until not rotating
         // stop drive when the bot comes to rest
         set_tank(0, 0);
         // correct any error
@@ -105,14 +117,14 @@ namespace drive
             rotate(degrees, error*35/6);
     }
 
-    void rotate_to(int degrees, int velocity)
-    {
-        int delta_theta = degrees - sens::get_direction();
-        if (delta_theta <= 180)
-            rotate(delta_theta, velocity);
-        else
-            rotate(delta_theta-360, velocity);
-    }
+    // void rotate_to(int degrees, int velocity)
+    // {
+    //     int delta_theta = degrees - sens::get_direction();
+    //     if (delta_theta <= 180)
+    //         rotate(delta_theta, velocity);
+    //     else
+    //         rotate(delta_theta-360, velocity);
+    // }
 
     void move_relative(int x, int y, int rotation, int velocity)
     {
@@ -148,14 +160,14 @@ namespace drive
         }
 
         // set direction to that angle
-        rotate_to(theta, velocity);
+        rotate(theta, velocity);
         
         // find distance to translate
         int dist = sqrt(x*x+y*y);
         // translate that distance
         translate(dist, velocity);
         // rotate to desired rotation
-        rotate_to(rotation, velocity);
+        rotate(rotation, velocity);
     }
 }
 
@@ -214,7 +226,7 @@ namespace routines
         // move back 1 tile ish
         drive::translate(-70, 100);
         // // turn 90 degrees
-        drive::rotate_to(90, 100);
+        drive::rotate(90, 100);
         // // push against roller
         roller::auto_roll(-1);
     }
@@ -228,7 +240,7 @@ namespace routines
         // move away
         drive::translate(20, 100);
         // turn
-        drive::rotate_to(-90, 100);
+        drive::rotate(-90, 100);
         // shoot twice
         flywheel::repeat_fire(2);
         // stop flywheel

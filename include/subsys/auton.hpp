@@ -23,7 +23,7 @@ namespace drive
 
     void translate(int distance, int velocity);
     void rotate(int degrees, int velocity);
-    void rotate_to(int degrees, int velocity);
+    // void rotate_to(int degrees, int velocity);
     void move_relative(int x, int y, int rotation);
     void moveto(int x, int y, int rotation);
 }
