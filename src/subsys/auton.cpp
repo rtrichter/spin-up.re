@@ -250,30 +250,36 @@ namespace routines
         // back up 
         drive::translate(-230, 150);
         // turn to first roller
-        drive::rotate_to(90, 150);
+        drive::rotate(90, 150);
         // roll
         roller::auto_roll(1);
         // move out
         drive::translate(100, 150);
         // turn to 2nd roller
-        drive::rotate_to(0, 150);
+        drive::rotate(0, 150);
         // turn roller
         roller::auto_roll(1);
         // move out
         drive::translate(100, 150);
         // turn towards opposite corner
-        drive::rotate_to(50, 150);
+        drive::rotate(50, 150);
         // drive a few miles forward
         drive::translate(500, 150);
         // turn for first roller
-        // push against roller
+        drive::rotate(180, 150);
         // turn roller
+        roller::auto_roll(-1);
         // move out
+        drive::translate(100, 150);
         // turn to last roller
-        // push against roller
-        // spin roller
+        drive::translate(270, 150);
+        // turn roller
+        drive::translate(100, 150);
         // move away
+        drive::translate(100, 150);
         // turn for expansion
+        drive::rotate(225, 150);
         // fire expansion
+        expansion::shoot();
     }
 }

@@ -41,11 +41,12 @@ void initialize() {
 
 	// initialize logging system
 	logging::init();
-	// reset gyro
+	pros::Task log_task(logging::log_task);
+	// reset sensors
 	sens::gyro.reset();
 	sens::left.reset();
 	sens::right.reset();
-	// set all motors to coast
+	// set all motor brake types
 	m::left.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
 	m::right.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
 	m::feed.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
@@ -54,6 +55,7 @@ void initialize() {
 	m::roller.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
 	m::intake.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
 	m::expansion.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+
 }
 
 /**
@@ -87,11 +89,11 @@ void competition_initialize() {}
  */
 void autonomous() {
 	// routines::right_low();
-	// routines::skills();
-	drive::rotate(-87, 100);
-	drive::rotate(22, 200);
-	drive::rotate(289, 70);
-	drive::rotate(0, 100);
+	routines::skills();
+	// drive::rotate(-87, 100);
+	// drive::rotate(22, 200);
+	// drive::rotate(289, 70);
+	// drive::rotate(0, 100);
 	// drive::translate(-300, 150);
 	// roller::auto_roll(1);
 	// drive::translate(-100, 100);

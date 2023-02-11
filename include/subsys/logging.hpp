@@ -1,5 +1,4 @@
 #include <string>
-#include <iostream>
 #include <fstream>
 using namespace std;
 
@@ -29,6 +28,7 @@ namespace logging
     void sens_data();
     void init();
     void record();
+    void log_task(void* param);
     
 }
 
