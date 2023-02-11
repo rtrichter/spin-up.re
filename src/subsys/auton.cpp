@@ -239,10 +239,10 @@ namespace routines
     {
         // shoot 2 high goals
         // start flywheel
-        // flywheel::spin(flywheel::Vclose);
-        // // aim for high goal
-        // flywheel::repeat_fire(2);
-        // flywheel::spin(0);
+        flywheel::spin(flywheel::Vclose);
+        // aim for high goal
+        flywheel::repeat_fire(2);
+        flywheel::spin(0);
 
 
 
