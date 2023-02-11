@@ -86,8 +86,8 @@ void competition_initialize() {}
  * from where it left off.
  */
 void autonomous() {
-	// routines::right_low();
-	routines::skills();
+	routines::right_low();
+	// routines::skills();
 	// drive::translate(-300, 150);
 	// roller::auto_roll(1);
 	// drive::translate(-100, 100);
