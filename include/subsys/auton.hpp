@@ -35,6 +35,7 @@ namespace flywheel
 
 namespace roller
 {
+    int auto_roll_s(int direction, int timeout=10000);
     int auto_roll(int direction, int timeout=10000);
 }
 

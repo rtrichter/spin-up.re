@@ -78,21 +78,21 @@ namespace drive
             set_tank(velocity, -velocity);
             do {
                 pros::delay(10);
-            }while (sens::get_direction()<degrees-5);
+            }while (sens::get_direction()<degrees-20);
         }
         else
         {
             set_tank(-velocity, velocity);
             do {
                 pros::delay(10);
-            }while (sens::get_direction()>degrees+5);
+            }while (sens::get_direction()>degrees+20);
         }
         // brief brake
 
         int r0 = sens::get_direction();
         pros::delay(10);
         int r = sens::get_direction();
-        set_tank(-20*direction, 20*direction);
+        set_tank(-velocity*direction, velocity*direction);
         while (r!=r0)
         {
             r0=r;
@@ -112,9 +112,9 @@ namespace drive
         // stop drive when the bot comes to rest
         set_tank(0, 0);
         // correct any error
-        int error = abs((sens::gyro.get_rotation())- degrees);
-        if (error)
-            rotate(degrees, error*35/6);
+        // int error = abs((sens::gyro.get_rotation())- degrees);
+        // if (error>=5)
+        //     rotate(degrees, error*35/6);
     }
 
     // void rotate_to(int degrees, int velocity)
@@ -184,12 +184,31 @@ namespace flywheel
             if ((pros::millis() - start_ts)>timeout)
                 return 0;
         }
+        pros::delay(50);
         return 1;
     }
 }
 
 namespace roller
 {
+    int auto_roll_s(int direction, int timeout)
+    {
+        int start_ts = pros::millis();
+        drive::set_tank(-100, -100);
+        pros::delay(200);
+        while (sens::avg_drive_encoder_velocity())
+        {
+            pros::delay(10);
+            if (pros::millis()-start_ts > timeout)
+                return 0;
+        }
+        pros::delay(50);
+        // // spin roller some amount
+        m::roller.move_relative(140*direction, 100);
+        pros::delay(1000);
+        drive::set_tank(0,0);
+        return 1;
+    }
     int auto_roll(int direction, int timeout)
     {
         int start_ts = pros::millis();
@@ -240,7 +259,7 @@ namespace routines
         // move away
         drive::translate(20, 100);
         // turn
-        drive::rotate(-90, 100);
+        drive::rotate(90, 100);
         // shoot twice
         flywheel::repeat_fire(2);
         // stop flywheel
@@ -249,6 +268,7 @@ namespace routines
 
     void skills()
     {
+        // m::intake.move_velocity(200);
         // shoot 2 high goals
         // start flywheel
         flywheel::spin(flywheel::Vclose);
@@ -260,38 +280,23 @@ namespace routines
 
 
         // back up 
-        drive::translate(-230, 150);
-        // turn to first roller
-        drive::rotate(90, 150);
-        // roll
-        roller::auto_roll(1);
-        // move out
-        drive::translate(100, 150);
-        // turn to 2nd roller
-        drive::rotate(0, 150);
-        // turn roller
-        roller::auto_roll(1);
-        // move out
-        drive::translate(100, 150);
-        // turn towards opposite corner
-        drive::rotate(50, 150);
-        // drive a few miles forward
-        drive::translate(500, 150);
-        // turn for first roller
-        drive::rotate(180, 150);
-        // turn roller
-        roller::auto_roll(-1);
-        // move out
-        drive::translate(100, 150);
-        // turn to last roller
-        drive::translate(270, 150);
-        // turn roller
-        drive::translate(100, 150);
-        // move away
-        drive::translate(100, 150);
+        drive::translate(-250, 150);
+        // // turn to first roller
+        // drive::rotate(90, 150);
+        // // roll
+        // roller::auto_roll_s(1);
+        // // move out
+        // drive::translate(90, 150);
+        // // turn to 2nd roller
+        // drive::rotate(360, 150);
+        // // turn roller
+        // roller::auto_roll_s(1);
+        // // move out
+        // drive::translate(100, 150);
         // turn for expansion
-        drive::rotate(225, 150);
+        drive::rotate(315, 150);
         // fire expansion
         expansion::shoot();
+        drive::translate(-30, 100);
     }
 }

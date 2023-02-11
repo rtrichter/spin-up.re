@@ -88,20 +88,10 @@ void competition_initialize() {}
  * from where it left off.
  */
 void autonomous() {
-	// routines::right_low();
-	routines::skills();
-	// drive::rotate(-87, 100);
-	// drive::rotate(22, 200);
-	// drive::rotate(289, 70);
-	// drive::rotate(0, 100);
-	// drive::translate(-300, 150);
-	// roller::auto_roll(1);
-	// drive::translate(-100, 100);
-	// drive::rotate(90, 100);
-	// pros::delay(2000);
-	// drive::rotate_to(0, 100);
-	// pros::delay(2000);
-	// drive:: rotate_to(270, 100);
+	routines::right_low();
+	// routines::left_low();
+	// routines::skills();
+	
 }
 
 /**
