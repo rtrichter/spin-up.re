@@ -1,4 +1,5 @@
 #include "subsys/flywheel.hpp"
+#include "pros/misc.h"
 #include "subsys/globals.hpp"
 
 // define flywheel and feed motors
@@ -54,7 +55,10 @@ namespace flywheel
             cout << "bad flywheel speed: " << m::flywheel1.get_actual_velocity() - speed << endl;
             return 0;
         }
-        m::feed.move_relative(360, 200);
+        if (ctrl::master.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT))
+            m::feed.move_relative(-360, 200);
+        else
+            m::feed.move_relative(360, 200);
         pros::delay(50);
         return 1;
     }
@@ -75,6 +79,7 @@ namespace flywheel
         spin(speed*running);
         if (ctrl::master.get_digital(ctrl::feed))
             feed();
+        
 
 
     }

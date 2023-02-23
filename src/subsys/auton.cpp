@@ -230,32 +230,34 @@ namespace routines
     {
         // shoot 2 high goals
         // start flywheel
-        // flywheel::spin(flywheel::Vclose);
-        // // aim for high goal
-        // flywheel::repeat_fire(2);
-        // flywheel::spin(0);
+        flywheel::spin(flywheel::Vclose);
+        // aim for high goal
+        flywheel::repeat_fire(2);
+        flywheel::spin(0);
 
 
 
 
         // back up 
-        drive::translate(-230, 150);
+        drive::translate(-200, 150);
         // turn to first roller
-        drive::rotate_to(90, 150);
-        // roll
-        roller::auto_roll(1);
-        // move out
-        drive::translate(100, 150);
-        // turn to 2nd roller
-        drive::rotate_to(0, 150);
-        // turn roller
-        roller::auto_roll(1);
-        // move out
-        drive::translate(100, 150);
-        // turn towards opposite corner
-        drive::rotate_to(50, 150);
-        // drive a few miles forward
-        drive::translate(500, 150);
+        drive::rotate(-45, 150);
+        drive::translate(-50, 150);
+        m::expansion.move_velocity(200);
+        // // roll
+        // roller::auto_roll(1);
+        // // move out
+        // drive::translate(100, 150);
+        // // turn to 2nd roller
+        // drive::rotate_to(0, 150);
+        // // turn roller
+        // roller::auto_roll(1);
+        // // move out
+        // drive::translate(100, 150);
+        // // turn towards opposite corner
+        // drive::rotate_to(50, 150);
+        // // drive a few miles forward
+        // drive::translate(500, 150);
         // turn for first roller
         // push against roller
         // turn roller

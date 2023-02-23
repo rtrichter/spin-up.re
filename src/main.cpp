@@ -116,17 +116,19 @@ void opcontrol() {
 	int count = 0;
 	while (true)
 	{
-		drive::opcon();
-		flywheel::opcon();
-		intake::opcon();
-		roller::opcon();
-		expansion::opcon();
-		if (!(count%5))
-		{
-			cout << count << endl;
-			logging::record();
-		}
-		pros::delay(10);
-		count++;
+		cin >> count;
+		pros::lcd::print(0, "%d", count);
+		// drive::opcon();
+		// flywheel::opcon();
+		// intake::opcon();
+		// roller::opcon();
+		// expansion::opcon();
+		// if (!(count%5))
+		// {
+		// 	cout << count << endl;
+		// 	logging::record();
+		// }
+		// pros::delay(10);
+		// count++;
 	}
 }
