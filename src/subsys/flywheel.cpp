@@ -1,6 +1,5 @@
-#include "subsys/flywheel.hpp"
-#include "pros/misc.h"
-#include "subsys/globals.hpp"
+#include "flywheel.hpp"
+#include "globals.hpp"
 
 // define flywheel and feed motors
 pros::Motor m::flywheel1 (p::flywheel1, pros::E_MOTOR_GEARSET_06, true, pros::E_MOTOR_ENCODER_DEGREES);
@@ -33,10 +32,8 @@ namespace flywheel
     // spin the flywheel at a given velocity
     void spin(int velocity)
     {
-        // for auton purposes (ensures feed flywheel speed safety still works)
-        speed = velocity;
-        m::flywheel1.move_velocity(velocity);
-        m::flywheel2 .move_velocity(velocity);
+        m::flywheel1.move_velocity(speed);
+        m::flywheel2.move_velocity(speed);
     }
 
     // feed a disk into the flywheel
