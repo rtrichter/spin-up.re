@@ -67,17 +67,13 @@ pros::delay(20)
 
 */
 
-namespace flywheel
-{
-    void PID(int velocity);
-}
 
 namespace drive
 {
-    inline const double Kpt = 0.0;
+    inline const double Kpt = 240;
     inline const double Kit = 0.0;
     inline const double Kdt = 0.0;
-    inline const double Kpr = 0.0;
+    inline const double Kpr = 15.27;
     inline const double Kir = 0.0;
     inline const double Kdr = 0.0;
     void translate(int distance);

@@ -10,10 +10,6 @@
 
 #include <cmath>
 
-namespace flywheel
-{
-
-}
 
 namespace drive
 {
@@ -21,24 +17,42 @@ namespace drive
     {
         /*
         enc_value
-        (4in*PI/enc_value degrees) inches
-        (100 centitiles/24 inches) 
+        (4in*PI/enc_value centidegrees) inches
+        (1 tiles/24 inches) 
         */
+        return encoder_value *
+            (wheel_size*PI/360.) *
+            (1/24.);
     }
 
-    /*
-
-    AUTOTUNING
-
-    try translate at varying Kp values
-    
-
-    
-    */
+    void rotate(int degrees)
+    {
+        sens::tare_drive_encoders();
+        int distance = degrees * wheelbase*PI / 360. * 100/24;
+        int current;
+        int voltage;
+        int error = 1;
+        int prev_error = 0;
+        int derivative;
+        int integral;
+        // while not at target angle and moving
+        while ( error && sens::left.get_velocity() - sens::right.get_velocity()) 
+        {
+            current = enc2dist((
+                    sens::left.get_position() - sens::right.get_position()
+                    ) / 2);
+            error = distance - current;
+            integral += error;
+            derivative = error - prev_error;
+            voltage = Kpt*error + Kit*integral + Kdt*derivative; 
+            set_tank(voltage, voltage);
+            pros::delay(10);
+        }
+        set_tank(0, 0);
+    }
 
     void translate(int distance)
     {
-        // convert distance to encoder units
         sens::tare_drive_encoders();
         int current;
         int voltage;
@@ -49,12 +63,13 @@ namespace drive
         // while not at target location and moving
         while ( error && sens::avg_drive_encoder_velocity() ) 
         {
-            current = sens::avg_drive_encoder();
-            current = (sens::left.get_position() + sens::right.get_position()) / 2;
+            current = enc2dist((
+                    sens::left.get_position() + sens::right.get_position()
+                    ) / 2);
             error = distance - current;
             integral += error;
             derivative = error - prev_error;
-            voltage = Kpt*error + Kit*integral + Kdt*derivative; // should be -12000 to 12000
+            voltage = Kpt*error + Kit*integral + Kdt*derivative; 
             set_tank(voltage, voltage);
             pros::delay(10);
         }
