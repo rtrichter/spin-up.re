@@ -38,6 +38,33 @@ namespace flywheel
         m::flywheel2 .move_velocity(velocity);
     }
 
+    void PID()
+    {
+        float current;
+        float error = 1;
+        float prev_error = 0;
+        float integral;
+        float derivative;
+        int voltage;
+        while (true)
+        {
+            float v1 = m::flywheel1.get_actual_velocity();
+            float v2 = m::flywheel2.get_actual_velocity();
+            // protect against variations in readings
+            // removes (most) outliers by making sure both readings are near
+            // each other
+            if (fabs(v1 - v2) > 7)
+                continue;
+            current = (v1 + v2) / 2;
+            error = velocity - current;
+            integral += error;
+            derivative = error-prev_error;
+            voltage = Kp*error + Ki*integral + Kd*derivative;
+            prev_error = error;
+            pros::delay(10);
+        }
+    }
+
     // feed a disk into the flywheel
     // aka shoot
     int feed()

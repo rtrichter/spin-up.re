@@ -27,6 +27,10 @@ namespace ctrl
 
 namespace flywheel
 {
+    inline int velocity = 0;
+    inline const int Kp=0;
+    inline const int Ki=0;
+    inline const int Kd=0;
     inline const int Vclose = 375;
     inline const int Vfar = 450;
     inline bool close = true;
