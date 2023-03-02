@@ -21,7 +21,7 @@ namespace ctrl
 
 namespace intake
 {
-    inline const int v = 200;
+    inline const int v = 600;
     inline bool running;
     void toggle();
     void run();

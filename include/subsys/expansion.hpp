@@ -22,6 +22,7 @@ namespace ctrl
 
 namespace expansion
 {
+    void shoot();
     void opcon();
 }
 

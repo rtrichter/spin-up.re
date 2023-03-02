@@ -7,6 +7,7 @@
 #include "intake.hpp"
 #include "roller.hpp"
 #include "expansion.hpp"
+#include "sens.hpp"
 
 namespace p
 {
@@ -122,6 +123,27 @@ namespace logging
         }
     }
 
+    void sens_init()
+    {
+        // write column headers for sensors
+        // gyro
+        log_file << "," << 
+        "direction";
+        // drive encoders
+        log_file << "," <<
+        "avg_drive_encoder," <<
+        "avg_drive_velocity";
+    }
+
+    void sens_data()
+    {
+        // write data for sensors
+        log_file << "," <<
+        sens::get_direction() << "," <<
+        sens::avg_drive_encoder() << "," <<
+        sens::avg_drive_encoder_velocity();
+    }
+
     void ctrl_data()
     {
         // write column headers for ctrl
@@ -179,6 +201,7 @@ namespace logging
         motor_init(); // 8**8
         ctrl_init(); // 16
         bat_init(); // 4
+        sens_init(); // 3
         log_file << "\n";
         log_file.close();
     }
@@ -190,8 +213,17 @@ namespace logging
         motor_data();
         ctrl_data();
         bat_data();
+        sens_data();
         log_file << "\n";
-
         log_file.close();
+    }
+
+    void log_task(void* param)
+    {
+        while (true)
+        {
+            record();
+            pros::delay(25);
+        }
     }
 }

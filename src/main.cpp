@@ -1,6 +1,7 @@
 #include "main.h"
 
 #include "pros/misc.h"
+#include "pros/rtos.hpp"
 #include "subsys/drive.hpp"
 #include "subsys/flywheel.hpp"
 #include "subsys/intake.hpp"
@@ -34,6 +35,7 @@ void on_center_button() {
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
+	pros::Task flywheel_speed(flywheel::velocity_control);
 	pros::lcd::initialize();
 	pros::lcd::set_text(1, "Hello PROS User!");
 
@@ -41,11 +43,12 @@ void initialize() {
 
 	// initialize logging system
 	logging::init();
-	// reset gyro
+	pros::Task log_task(logging::log_task);
+	// reset sensors
 	sens::gyro.reset();
 	sens::left.reset();
 	sens::right.reset();
-	// set all motors to coast
+	// set all motor brake types
 	m::left.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
 	m::right.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
 	m::feed.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
@@ -54,6 +57,7 @@ void initialize() {
 	m::roller.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
 	m::intake.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
 	m::expansion.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+
 }
 
 /**
@@ -81,11 +85,15 @@ void competition_initialize() {}
  * mode. Alternatively, this function may be called in initialize or opcontrol
  * for non-competition testing purposes.
  *
- * If the robot is disabled or communications is lost, the autonomous task
+ * If the robot is disabled or communications is lost, the atonomous task
  * will be stopped. Re-enabling the robot will restart the task, not re-start it
  * from where it left off.
  */
 void autonomous() {
+	// routines::right_low();
+	// routines::left_low();
+	// routines::skills();
+	
 	routines::right_low();
 	// routines::skills();
 	// drive::translate(-300, 150);
@@ -116,19 +124,17 @@ void opcontrol() {
 	int count = 0;
 	while (true)
 	{
-		cin >> count;
-		pros::lcd::print(0, "%d", count);
-		// drive::opcon();
-		// flywheel::opcon();
-		// intake::opcon();
-		// roller::opcon();
-		// expansion::opcon();
-		// if (!(count%5))
-		// {
-		// 	cout << count << endl;
-		// 	logging::record();
-		// }
-		// pros::delay(10);
-		// count++;
+		drive::opcon();
+		flywheel::opcon();
+		intake::opcon();
+		roller::opcon();
+		expansion::opcon();
+		if (!(count%5))
+		{
+			cout << count << endl;
+			logging::record();
+		}
+		pros::delay(10);
+		count++;
 	}
 }
