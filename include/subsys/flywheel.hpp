@@ -42,6 +42,8 @@ namespace flywheel
     inline const int velo_presets[] = {0, 335, 400};
     inline const int v_tune_delta = 5;
     inline int v_tune = 0;
+    inline const int vclose = 335;
+    inline const int vfar = 400;
     inline bool close = true;
     inline bool running = false;
     void toggle();
