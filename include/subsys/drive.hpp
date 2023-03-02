@@ -28,6 +28,9 @@ namespace drive
     inline const float wheel_size = 4;
     inline const float wheelbase = 14;
     int get_mapped_input(pros::controller_analog_e_t axis);
+    inline int vleft=0;
+    inline int vright=0;
+    void velocity_control(void* param);
     void set_tank(int left, int right);
 
     float in2rot(float distance);

@@ -36,6 +36,7 @@ void on_center_button() {
  */
 void initialize() {
 	pros::Task flywheel_speed(flywheel::velocity_control);
+	pros::Task drive_speed(drive::velocity_control);
 	pros::lcd::initialize();
 	pros::lcd::set_text(1, "Hello PROS User!");
 
