@@ -20,25 +20,19 @@ namespace flywheel
         running = !running;
     }
 
-    // set the appropriate speed depending on close or far
-    void set_speed()
+    float get_velo()
     {
-        if (close)
-            speed = Vclose;
-        else
-            speed = Vfar;
+        float v1 = m::flywheel1.get_actual_velocity();
+        float v2 = m::flywheel2.get_actual_velocity();
+        // protect against variations in readings
+        // removes (most) outliers by making sure both readings are near
+        // each other
+        if (fabs(v1 - v2) > 7)
+            return get_velo();
+        return (v1 + v2) / 2;
     }
-
-    // spin the flywheel at a given velocity
-    void spin(int velocity)
-    {
-        // for auton purposes (ensures feed flywheel speed safety still works)
-        speed = velocity;
-        m::flywheel1.move_velocity(velocity);
-        m::flywheel2 .move_velocity(velocity);
-    }
-
-    void PID()
+    
+    void velocity_control(void* param)
     {
         float current;
         float error = 1;
@@ -48,25 +42,18 @@ namespace flywheel
         int voltage;
         while (true)
         {
-            float v1 = m::flywheel1.get_actual_velocity();
-            float v2 = m::flywheel2.get_actual_velocity();
-            // protect against variations in readings
-            // removes (most) outliers by making sure both readings are near
-            // each other
-            if (fabs(v1 - v2) > 7)
-                continue;
-            current = (v1 + v2) / 2;
-            error = velocity - current;
+            current = get_velo();
+            error = velo_presets[preset] - current;
+            delta_v = error; // for tuning
             integral += error;
             derivative = error-prev_error;
-            voltage = Kp*error + Ki*integral + Kd*derivative;
+            voltage = volt_presets[preset] + Kp*error + Ki*integral + Kd*derivative;
             prev_error = error;
             pros::delay(10);
         }
     }
 
     // feed a disk into the flywheel
-    // aka shoot
     int feed()
     {
         // do not try to feed a disc until feed pusher is done spinning
@@ -86,6 +73,72 @@ namespace flywheel
         return 1;
     }
 
+    void tune_wait()
+    {
+        int t0 = pros::millis();
+        while (get_velo() && !delta_v)
+        {
+            
+            pros::delay(10);
+            if (pros::millis() - t0 > 10000) // timeout after 10 seconds
+                break;
+        }
+    }
+
+
+    int tune()
+    {
+        bool tuning = true;
+        int delta_kp = 1000;
+        int t0, t1, t2, t3, t4, delta_t;
+        int prev_velo = 0;
+        int min_delta_t = 10000;
+        while (tuning)
+        {
+            t0 = pros::millis();
+            // wait until at close speed
+            preset = 1;
+            tune_wait();
+            t1 = pros::millis();
+            // wait until stopped
+            preset = 0;
+            tune_wait();
+            t2 = pros::millis();
+            // wait until at far speed
+            preset = 2;
+            tune_wait();
+            t3 = pros::millis();
+            preset = 0;
+            // wait until stopped
+            t4 = pros::millis();
+
+
+            delta_t = t4-t0;
+            cout << 
+            Kp << "," <<
+            delta_t << ", ," <<
+            t0 << "," <<
+            t1 << "," <<
+            t2 << "," <<
+            t3 << "," <<
+            t4 << "\n";
+
+            if (delta_t<min_delta_t)
+            {
+                min_delta_t = delta_t;
+                Kp += delta_kp;
+            }
+            else
+            {
+                Kp -= delta_kp;
+                delta_kp /= 2;
+            }
+            if (delta_kp < 5)
+                return Kp;
+        }
+    }
+
+
     void opcon()
     {
         // check if running should be toggled
@@ -93,17 +146,15 @@ namespace flywheel
             toggle();
         // check if flywheel speed should be set to far
         if (ctrl::master.get_digital_new_press(ctrl::fw_far))
-            close = false;
+            preset = 1;
         // check if flywheel speed should be set to close
         if (ctrl::master.get_digital_new_press(ctrl::fw_close))
-            close = true;
-        // update the flywheel speed
-        set_speed();
-        spin(speed*running);
+            preset = 2;
         if (ctrl::master.get_digital(ctrl::feed))
             feed();
 
-
+        if (ctrl::master.get_digital(pros::E_CONTROLLER_DIGITAL_Y))
+            tune();
     }
 
 
