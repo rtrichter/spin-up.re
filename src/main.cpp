@@ -1,6 +1,7 @@
 #include "main.h"
 
 #include "pros/misc.h"
+#include "pros/rtos.hpp"
 #include "subsys/drive.hpp"
 #include "subsys/flywheel.hpp"
 #include "subsys/intake.hpp"
@@ -34,6 +35,7 @@ void on_center_button() {
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
+	pros::Task flywheel_speed(flywheel::velocity_control);
 	pros::lcd::initialize();
 	pros::lcd::set_text(1, "Hello PROS User!");
 
@@ -83,12 +85,12 @@ void competition_initialize() {}
  * mode. Alternatively, this function may be called in initialize or opcontrol
  * for non-competition testing purposes.
  *
- * If the robot is disabled or communications is lost, the autonomous task
+ * If the robot is disabled or communications is lost, the atonomous task
  * will be stopped. Re-enabling the robot will restart the task, not re-start it
  * from where it left off.
  */
 void autonomous() {
-	routines::right_low();
+	// routines::right_low();
 	// routines::left_low();
 	// routines::skills();
 	
@@ -119,8 +121,9 @@ void opcontrol() {
 		expansion::opcon();
 		if (!(count%5))
 		{
-			cout << count << endl;
+			// cout << count << endl;
 			logging::record();
+			// cout << m::flywheel1.get_voltage() << endl;
 		}
 		pros::delay(10);
 		count++;
