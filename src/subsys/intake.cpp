@@ -2,7 +2,7 @@
 #include "globals.hpp"
 
 // define intake motor
-pros::Motor m::intake(p::intake, pros::E_MOTOR_GEARSET_18, false, pros::E_MOTOR_ENCODER_DEGREES);
+pros::Motor m::intake(p::intake, pros::E_MOTOR_GEARSET_06, false, pros::E_MOTOR_ENCODER_DEGREES);
 
 // define intake controls
 pros::controller_digital_e_t ctrl::intake_toggle = pros::E_CONTROLLER_DIGITAL_L1;
