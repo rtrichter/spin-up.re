@@ -13,22 +13,6 @@
 #include "subsys/auton.hpp"
 
 /**
- * A callback function for LLEMU's center button.
- *
- * When this callback is fired, it will toggle line 2 of the LCD text between
- * "I was pressed!" and nothing.
- */
-void on_center_button() {
-	static bool pressed = false;
-	pressed = !pressed;
-	if (pressed) {
-		pros::lcd::set_text(2, "I was pressed!");
-	} else {
-		pros::lcd::clear_line(2);
-	}
-}
-
-/**
  * Runs initialization code. This occurs as soon as the program is started.
  *
  * All other competition modes are blocked by initialize; it is recommended
@@ -37,9 +21,10 @@ void on_center_button() {
 void initialize() {
 	pros::Task flywheel_speed(flywheel::velocity_control);
 	pros::lcd::initialize();
-	pros::lcd::set_text(1, "Hello PROS User!");
 
-	pros::lcd::register_btn1_cb(on_center_button);
+	pros::lcd::register_btn0_cb(auton::on_btn0);
+	pros::lcd::register_btn1_cb(auton::on_btn1);
+	pros::lcd::register_btn2_cb(auton::on_btn2);
 
 	// initialize logging system
 	logging::init();
@@ -85,25 +70,12 @@ void competition_initialize() {}
  * mode. Alternatively, this function may be called in initialize or opcontrol
  * for non-competition testing purposes.
  *
- * If the robot is disabled or communications is lost, the atonomous task
+ * If the robot is disabled or communications is lost, the autonomous task
  * will be stopped. Re-enabling the robot will restart the task, not re-start it
  * from where it left off.
  */
 void autonomous() {
-	// routines::right_low();
-	// routines::left_low();
-	// routines::skills();
-	
-	routines::right_low();
-	// routines::skills();
-	// drive::translate(-300, 150);
-	// roller::auto_roll(1);
-	// drive::translate(-100, 100);
-	// drive::rotate(90, 100);
-	// pros::delay(2000);
-	// drive::rotate_to(0, 100);
-	// pros::delay(2000);
-	// drive:: rotate_to(270, 100);
+	auton::auton();
 }
 
 /**

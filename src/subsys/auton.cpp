@@ -1,78 +1,110 @@
-// #include "auton.hpp"
+#include "auton.hpp"
 
-// #include "drive.hpp"
-// #include "expansion.hpp"
-// #include "flywheel.hpp"
-// #include "globals.hpp"
-// #include "intake.hpp"
-// #include "roller.hpp"
-// #include "sens.hpp"
+using namespace pros::lcd;
 
-// #include <cmath>
-
-
-namespace drive
+namespace auton
 {
-    int enc2dist(int encoder_value)
-    {
-        /*
-        enc_value
-        (4in*PI/enc_value centidegrees) inches
-        (1 tiles/24 inches) 
-        */
-        return encoder_value *
-            (wheel_size*PI/360.) *
-            (1/24.);
-    }
 
-    void rotate(int degrees)
+// auton select
+void set_auton_select_screen()
+{
+    clear();
+    if (confirmed)
     {
-        sens::tare_drive_encoders();
-        int distance = degrees * wheelbase*PI / 360. * 100/24;
-        int current;
-        int voltage;
-        int error = 1;
-        int prev_error = 0;
-        int derivative;
-        int integral;
-        // while not at target angle and moving
-        while ( error && sens::left.get_velocity() - sens::right.get_velocity()) 
-        {
-            current = enc2dist((
-                    sens::left.get_position() - sens::right.get_position()
-                    ) / 2);
-            error = distance - current;
-            integral += error;
-            derivative = error - prev_error;
-            voltage = Kpt*error + Kit*integral + Kdt*derivative; 
-            set_tank(voltage, voltage);
-            pros::delay(10);
-        }
-        set_tank(0, 0);
+        set_text(
+            0, 
+            "Confirmed and prepared to run " + names[routine]
+        );
     }
+    set_text(
+        0, 
+        "Currently selecting " + names[routine]
+    );
+}
 
-    void translate(int distance)
+void on_btn0()
+{
+    // confirm locks selection process
+    if (confirmed)
+        return;
+    // wrap to max value if decreased at 0
+    if (!routine)
     {
-        sens::tare_drive_encoders();
-        int current;
-        int voltage;
-        int error;
-        int prev_error = 0;
-        int derivative;
-        int integral;
-        // while not at target location and moving
-        while ( error && sens::avg_drive_encoder_velocity() ) 
-        {
-            current = enc2dist((
-                    sens::left.get_position() + sens::right.get_position()
-                    ) / 2);
-            error = distance - current;
-            integral += error;
-            derivative = error - prev_error;
-            voltage = Kpt*error + Kit*integral + Kdt*derivative; 
-            set_tank(voltage, voltage);
-            pros::delay(10);
-        }
-        set_tank(0, 0);
+        routine = max_routine;
+        return; 
     }
+    routine -= 1;
+    set_auton_select_screen();
+}
+
+void on_btn1()
+{
+    // toggle whether or not the auton is confirmed
+    confirmed = !confirmed;
+    set_auton_select_screen();
+}
+
+void on_btn2()
+{
+    // confirm locks selection process
+    if (confirmed)
+        return;
+    // wrap to min value if increased at max
+    if (routine == max_routine)
+    {
+        routine = 0;
+        return;
+    }
+    routine += 1;
+    set_auton_select_screen();
+}
+
+
+// routines
+void none()
+{
+    cout << "running \"none\" auton" << endl;
+}
+
+void left_high()
+{
+    cout << "running \"left_high\" auton" << endl;
+}
+
+void left_low()
+{
+    cout << "running \"left_low\" auton" << endl;
+}
+
+void left_wp()
+{
+    cout << "running \"left_wp\" auton" << endl;
+}
+
+void right_high()
+{
+    cout << "running \"right_high\" auton" << endl;
+}
+
+void right_low()
+{
+    cout << "running \"right_low\" auton" << endl;
+}
+
+void right_wp()
+{
+    cout << "running \"right_wp\" auton" << endl;
+}
+
+void skills()
+{
+    cout << "running \"skills\" auton" << endl;
+}
+
+void auton()
+{
+    clear();
+    routines[routine]();
+}
+
 }
