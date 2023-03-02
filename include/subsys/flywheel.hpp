@@ -28,7 +28,7 @@ namespace ctrl
 namespace flywheel
 {
     inline int velocity = 0;
-    inline int Kp=0;
+    inline int Kp=517;
     inline const int Ki=0;
     inline const int Kd=0;
     // used in tuning function
@@ -37,12 +37,13 @@ namespace flywheel
     // 1: close
     // 2: far
     inline const int velo_presets[] = {0, 335, 400};
-    inline const int volt_presets[] = {0, 11000, 12000};
+    inline const int volt_presets[] = {0, 5000, 7000};
     inline int preset = 0;
     inline bool close = true;
     inline int speed;
     inline bool running = false;
     void toggle();
+    void velocity_control(void* param);
     void set_speed();
     void spin(int velocity);
     int feed();
