@@ -32,24 +32,23 @@ namespace drive
     {
         // get analog input
         int x = ctrl::master.get_analog(axis);
+        int sign = x/abs(x);
         // return 0 if the input is less than the deadzone threshold
         if (abs(x) < ctrl::deadzone_threshold)
             return 0;
         // math explained in readme
-        int value = (2/(2-sqrt(2))) * 
-            (1- cos( double((abs(x)-ctrl::deadzone_threshold)*PI) /
-            double((127-ctrl::deadzone_threshold)*4))) * Vmax;
-        // set value to negative if input was negative
-        // needed bc the equation uses absolute value
-        if (x < 0) value*=-1;
+        int value = (2/(2-sqrt(2))) * (1- cos( double((abs(x)-ctrl::deadzone_threshold)*PI) / double((127-ctrl::deadzone_threshold)*4))) * Vmax * sign;
+        // // set value to negative if input was negative
+        // // needed bc the equation uses absolute value
+        // if (x < 0) value*=-1;
         return value;
     }
 
     // set velocity of each side of the tank drive
     void set_tank(int left, int right)
     {
-        m::left = left;
-        m::right = right;
+        m::left.move_voltage(left);
+        m::right.move_voltage(right);
     }
 
     // runs repeatedly during main's opcon function

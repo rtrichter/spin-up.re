@@ -24,7 +24,7 @@ namespace ctrl
 
 namespace drive
 {
-    inline const int Vmax = 200;
+    inline const int Vmax = 12000;
     inline const float wheel_size = 4;
     inline const float wheelbase = 14;
     int get_mapped_input(pros::controller_analog_e_t axis);
