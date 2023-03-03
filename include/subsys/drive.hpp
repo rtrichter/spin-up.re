@@ -24,15 +24,27 @@ namespace ctrl
 
 namespace drive
 {
-    inline const int Vmax = 12000;
+    // always use centidegrees for distance and seconds for time
+    // 
+    inline const int velocity_cap = 13000;
     inline const float wheel_size = 4;
     inline const float wheelbase = 14;
     int get_mapped_input(pros::controller_analog_e_t axis);
     inline int vleft=0;
     inline int vright=0;
+
+    inline int Kvt;
+    inline int Kpt;
+
+
+    void translate(int distance, int velocity);
+    void rotate(int degrees, int velocity);
+
     void velocity_control(void* param);
     void set_tank(int left, int right);
 
+    int dist2enc(int distance);
+    int rpm2enc(int rpm);
     float in2rot(float distance);
     float deg2rot(float degrees);
 
