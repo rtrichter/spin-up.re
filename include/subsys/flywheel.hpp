@@ -29,21 +29,15 @@ namespace ctrl
 
 namespace flywheel
 {
+    inline bool verbose = true;
     inline int velocity = 0;
-    inline const float Kv=0.060473;
-    inline int Kp=517;
-    inline const int Ki=0;
-    inline const int Kd=0;
+    inline const float Kv=14.9253731; // TUNE THIS
+    inline int Kp=15; // TUNE THIS  
+    inline int Ki=0;
     // used in tuning function
-    inline int delta_v = 0;
-    // 0: stopped
-    // 1: close
-    // 2: far
-    inline const int velo_presets[] = {0, 335, 400};
+    inline const int velo_presets[] = {335, 400};
     inline const int v_tune_delta = 5;
     inline int v_tune = 0;
-    inline const int vclose = 335;
-    inline const int vfar = 400;
     inline bool close = true;
     inline bool running = false;
     void toggle();
