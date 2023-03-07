@@ -25,7 +25,6 @@ namespace ctrl
 namespace drive
 {
     // always use centidegrees for distance and seconds for time
-    // 
     inline const int velocity_cap = 13000;
     inline const float wheel_size = 4;
     inline const float wheelbase = 14;

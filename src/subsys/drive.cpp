@@ -46,28 +46,6 @@ namespace drive
         }
     }
 
-    void linear_displacement_profile_control(int v0, int vf, int xf)
-    {
-        int x0, x = sens::avg_drive_encoder();
-        int v = sens::avg_drive_encoder_velocity();
-        float t = xf/(float(v0+vf)/2);
-        int a = v0-vf/t;
-
-        int v_profile, x_profile;
-
-        int t0 = pros::millis();
-        while(x<xf && v)
-        {
-            // time since start of the move
-            float delta_t = float(pros::millis()-t0)/1000;
-            // velocity the profile says we should be at
-            int v_profile = a*delta_t;
-            // current displacement from start
-            x = sens::avg_drive_encoder()-x0;
-
-        }
-    }
-
     void translate(int distance, int velocity, float accel_period)
     {
         sens::tare_drive_encoders();
@@ -75,23 +53,23 @@ namespace drive
         // distance input as centitiles
         // also makes it positive. direction handled later
         int SP = dist2enc(distance)*direction;
-        int PV = sens::avg_drive_encoder();
+        int PV = abs(sens::avg_drive_encoder());
         int error = SP-PV;
         // velocity input as rpm. convert to centidegrees/sec
         int vmax = rpm2enc(velocity);
         int accel = vmax/accel_period;
         int accel_disp = vmax*accel_period/2; // triangle displacement
-        if (accel_disp>SP)
-        {
-            // these lines scale the triangle profile so the rate of accel
-            // is the same as it would have been for the larger triangle
-            // however the scale also ensures that the triangle has a 
-            // displacement equal to SP
-            float scale = sqrt((2*SP)/(accel_period*vmax));
-            vmax *= scale;
-            accel_period *= scale;
-        }
-        int v_actual = sens::avg_drive_encoder_velocity();
+        // if (accel_disp>SP)
+        // {
+        //     // these lines scale the triangle profile so the rate of accel
+        //     // is the same as it would have been for the larger triangle
+        //     // however the scale also ensures that the triangle has a 
+        //     // displacement equal to SP
+        //     float scale = sqrt((2*SP)/(accel_period*vmax));
+        //     vmax *= scale;
+        //     accel_period *= scale;
+        // }
+        int v_actual = abs(sens::avg_drive_encoder_velocity());
         int v_target;
         int v_profile, disp_profile;
         float delta_t, time_remaining;
@@ -102,11 +80,11 @@ namespace drive
         while (v_actual<vmax)
         {
             // time since the move started
-            delta_t = (pros::millis()-t0)/1000; 
+            delta_t = (pros::millis()-t0)/1000.; 
             // the velocity the bot SHOULD be at based on the motion profile
             v_profile = accel*delta_t;
             // the current displacement from the start point
-            PV = sens::avg_drive_encoder();
+            PV = abs(sens::avg_drive_encoder());
             // the displacement the bot SHOULD be at based on the motion profile
             disp_profile = .5*accel*delta_t*delta_t;
             // The displacement remaining
@@ -118,15 +96,82 @@ namespace drive
             // adjust left and right to make sure bot is 
             // traveling in a straight line
             // (integral control)
-            drive_diff = sens::left.get_position()-sens::right.get_position();
+            drive_diff = abs(sens::left.get_position())-abs(sens::right.get_position());
             // decrease l if diff is positive (left is faster)
             // abs value not necessary for left but looks more consistent
-            l_diff -= drive_diff/0.1*(drive_diff>0); 
+            l_diff -= direction*(drive_diff/0.1*(drive_diff>0)); 
             // same but += bc drive_diff will be negative if right is faster
-            r_diff += drive_diff/0.1*(drive_diff<0);
-            vleft = v_target + l_diff;
-            vright = v_target + r_diff;
-            pros::delay(10);
+            r_diff += direction*(drive_diff/0.1*(drive_diff<0));
+            vleft = direction*(v_target + l_diff);
+            vright = direction*(v_target + r_diff);
+            pros::delay(2);
+            // if bot is half way to SP and still accelerating it will be a
+            // triangle move so we end the accel period and move on
+            // constant velo period will correct itself to be 0 because 
+            // PV will be greater than the SP-actual_accel_disp
+            // (SP-actual_accel_disp is the same as actual_accel_disp aka SP/2)
+            if (PV > SP/2) 
+                break;
+        }
+        int actual_accel_disp = PV; // if accel period such as 0 is used we 
+        // need to adjust the time spent at the end decelerating
+        int const_v_period = (SP-2*actual_accel_disp)/velocity;
+        int t1 = pros::millis();
+        // I know this function is ugly and oversized but I don't have time to
+        // abstract it properly
+        while (PV<SP-actual_accel_disp) // position is less than set point
+        {
+            // time since the move started
+            delta_t = (pros::millis()-t1)/1000.; 
+            // the velocity the bot SHOULD be at based on the motion profile
+            v_profile = velocity;
+            // the current displacement from the start point
+            PV = abs(sens::avg_drive_encoder());
+            // the displacement the bot SHOULD be at based on the motion profile
+            disp_profile = actual_accel_disp+velocity*delta_t;
+            // The displacement remaining
+            I = (SP-actual_accel_disp)-PV;
+            // The time remaining
+            Ti = const_v_period-delta_t;
+            // combine for PI control
+            v_target = v_profile + I/Ti;
+            // adjust left and right to make sure bot is 
+            // traveling in a straight line
+            // (integral control)
+            drive_diff = abs(sens::left.get_position())-abs(sens::right.get_position());
+            // decrease l if diff is positive (left is faster)
+            // abs value not necessary for left but looks more consistent
+            l_diff -= direction*(drive_diff/0.1*(drive_diff>0)); 
+            // same but += bc drive_diff will be negative if right is faster
+            r_diff += direction*(drive_diff/0.1*(drive_diff<0));
+            vleft = direction*(v_target + l_diff);
+            vright = direction*(v_target + r_diff);
+            pros::delay(2);
+        }
+        accel = -1*actual_accel_disp/(t1-t0); 
+        int t2 = pros::millis();
+        while (!(!v_actual&&SP==PV))
+        {
+            // time since the move started
+            delta_t = (pros::millis()-t2)/1000.; 
+            // the velocity the bot SHOULD be at based on the motion profile
+            v_profile = vmax/sqrt((SP-PV)/(actual_accel_disp));
+            // the current displacement from the start of decel
+            PV = abs(sens::avg_drive_encoder());
+            // integral control handled already by v_profile being displacement
+            // based instead of time
+            v_target = v_profile;
+            // adjust left and right to make sure bot is 
+            // traveling in a straight line
+            // (integral control)
+            drive_diff = abs(sens::left.get_position())-abs(sens::right.get_position());
+            // increase r if diff is positive (left is faster)
+            r_diff += direction*(drive_diff/0.1*(drive_diff>0)); 
+            // same but -= bc drive_diff will be negative if right is faster
+            l_diff -= direction*(drive_diff/0.1*(drive_diff<0));
+            vleft = -direction*(v_target + l_diff);
+            vright = -direction*(v_target + r_diff);
+            pros::delay(2);
         }
 
     }
