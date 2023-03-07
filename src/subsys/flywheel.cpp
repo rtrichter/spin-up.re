@@ -11,6 +11,8 @@ pros::controller_digital_e_t ctrl::fw_toggle = pros::E_CONTROLLER_DIGITAL_R1;
 pros::controller_digital_e_t ctrl::feed = pros::E_CONTROLLER_DIGITAL_R2;
 pros::controller_digital_e_t ctrl::fw_far = pros::E_CONTROLLER_DIGITAL_UP;
 pros::controller_digital_e_t ctrl::fw_close = pros::E_CONTROLLER_DIGITAL_DOWN;
+pros::controller_digital_e_t ctrl::fw_tune_up = pros::E_CONTROLLER_DIGITAL_RIGHT;
+pros::controller_digital_e_t ctrl::fw_tune_down = pros::E_CONTROLLER_DIGITAL_LEFT;
 
 namespace flywheel
 {
@@ -27,7 +29,7 @@ namespace flywheel
         // protect against variations in readings
         // removes (most) outliers by making sure both readings are near
         // each other
-        if (fabs(v1 - v2) > 7)
+        if (fabs(v1 - v2) > 5)
             return get_velo();
         return (v1 + v2) / 2;
     }
@@ -35,30 +37,24 @@ namespace flywheel
     void velocity_control(void* param)
     {
         cout << "velo control started" << endl;;
+        // feed forward and feedback control
         float current;
         float error = 1;
         float prev_error = 0;
-        float integral;
-        float derivative;
+        float total_error=0;
         int voltage;
         while (true)
         {
-            // cout << "running velo control | ";
             current = get_velo();
-            // cout << "current velo = " << current << "\n";
-            // cout << "target velo = " << velo_presets[preset] << "\n";
-            error = velo_presets[preset] - current;
-            // cout << "error = " << error << " | ";
-            delta_v = error; // for tuning
-            // cout << "delta_v = " << delta_v << " | ";
-            integral += error;
-            derivative = error-prev_error;
-            voltage = volt_presets[preset] + Kp*error + Ki*integral + Kd*derivative;
-            // cout << "voltage = " << voltage << "\n";
-            prev_error = error;
+            error = velocity - current;
+            total_error += error;
+            voltage = Kv*velocity + Kp*error;
+            // do not brake to get to 0
+            if (!velocity)
+                voltage = 0;
             m::flywheel1.move_voltage(voltage);
             m::flywheel2.move_voltage(voltage);
-            pros::delay(10);
+            pros::delay(2);
         }
     }
 
@@ -72,9 +68,10 @@ namespace flywheel
             return 0;
         }
         // do not shoot unless flywheel is at the correct speed
-        if (abs(m::flywheel1.get_actual_velocity() - velo_presets[preset])>10)
+        if (abs(get_velo()-velocity)>3)
         {
-            cout << "bad flywheel speed: " << m::flywheel1.get_actual_velocity() - speed << endl;
+            cout << "bad flywheel speed: " 
+            << m::flywheel1.get_actual_velocity() - velocity << endl;
             return 0;
         }
         m::feed.move_relative(360, 200);
@@ -85,12 +82,18 @@ namespace flywheel
     void tune_wait()
     {
         int t0 = pros::millis();
+        int delta_v=100;
+        int v, v_prev=0;
         do {
-            // cout << get_velo() << " | " << velo_presets[preset] << " | " << delta_v << endl;
-            pros::delay(25);
             if (pros::millis() - t0 > 5000) // timeout after 5 seconds
                 return;
-        } while (fabs(get_velo() - velo_presets[preset]) > 10 && fabs(delta_v) > 5);
+            v = get_velo();
+            delta_v = v-v_prev;
+            v_prev = v;
+            pros::delay(25);
+        } while (
+            !(fabs(get_velo() - velocity) > 10 || fabs(delta_v) > 5)
+        );
     }
 
 
@@ -98,7 +101,8 @@ namespace flywheel
     {
         cout << "tuning started" << endl;
         bool tuning = true;
-        int delta_kp = 1000;
+        Kp = 0;
+        int delta_kp = 100;
         int t0, t1, t2, t3, t4, delta_t;
         int prev_velo = 0;
         int min_delta_t = 10000000;
@@ -106,55 +110,42 @@ namespace flywheel
         while (tuning)
         {
             avg_delta_t = 0;
-            for (int i=0; i<5; i++)
+            for (int i=0; i<3; i++)
             {
             t0 = pros::millis();
             // wait until at close speed
-            preset = 1;
+            velocity = velo_presets[0];
             tune_wait();
-            // pros::delay(500);
             t1 = pros::millis();
+            pros::delay(200);
             // wait until stopped
-            preset = 0;
+            velocity = 0;
             tune_wait();
-            // pros::delay(500);
+            pros::delay(200);
             t2 = pros::millis();
             // wait until at far speed
-            preset = 2;
+            velocity = velo_presets[1];
             tune_wait();
-            // pros::delay(500);
             t3 = pros::millis();
-            preset = 0;
+            pros::delay(200);
+            velocity = 0;
             // wait until stopped
-            // pros::delay(500);
+            pros::delay(200);
             t4 = pros::millis();
 
 
-            delta_t = t4-t0;
+            delta_t = (t3-t2) + (t1-t0); // ignore time to stop
             avg_delta_t += delta_t;
             cout << 
             Kp << "," <<
             delta_t << ", ," <<
             t0 << "," <<
-            t1 << "," <<
-            t2 << "," <<
-            t3 << "," <<
-            t4 << "\n";
+            t1-t0 << "," <<
+            t2-t1 << "," <<
+            t3-t2 << "," <<
+            t4-t3 << "\n";
             }
             cout << Kp << "," << avg_delta_t << endl;
-
-// 0,21160, ,982,10992,12132,22142,22142
-// 1000,3040, ,22142,22472,22862,25182,25182
-// 2000,3050, ,25182,25542,25932,28232,28232
-// 1000,2720, ,28232,28262,28712,30952,30952
-// 1500,4350, ,30952,32582,32972,35302,35302
-// 1000,3340, ,35302,35872,36262,38642,38642
-// 750,3540, ,38642,39312,39692,42182,42182
-// 625,3780, ,42182,43062,43462,45962,45962
-// 563,3680, ,45962,46762,47142,49642,49642
-// 532,3760, ,49642,50422,50902,53402,53402
-// 517,3680, ,53402,54052,54492,57082,57082
-
 
             if (avg_delta_t<min_delta_t)
             {
@@ -163,13 +154,44 @@ namespace flywheel
             }
             else
             {
-                Kp -= delta_kp;
                 delta_kp /= 2;
+                Kp -= delta_kp;
+                if (delta_kp==1)
+                    return Kp;
             }
-            if (delta_kp < 5)
-                return Kp;
         }
         return 0;
+    }
+
+    void telem_out()
+    {
+        cout <<
+        pros::millis() << "," <<
+        velocity << "," <<
+        get_velo() << "," <<
+        m::flywheel1.get_voltage() << endl;
+    }
+
+    void find_kv()
+    {
+        int prev_v = get_velo();
+        int v;
+        for ( int v_test=0; v_test<13000; v_test+=500 )
+        {
+            m::flywheel1.move_voltage(v_test);
+            m::flywheel2.move_voltage(v_test);
+            do
+            {
+                pros::delay(50);
+                v = get_velo();
+            } while (!ctrl::master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y));
+            cout << 
+            v_test << "," << 
+            v << endl;
+
+            
+            
+        }
     }
 
 
@@ -184,16 +206,33 @@ namespace flywheel
         // check if flywheel speed should be set to close
         if (ctrl::master.get_digital_new_press(ctrl::fw_close))
             close = true;
-        preset = running*(1+!close);
-        // cout << preset << endl;
+        // check if tuning should increase
+        if (ctrl::master.get_digital_new_press(ctrl::fw_tune_up))
+            v_tune += v_tune_delta;
+        // check if tuning should decrease
+        if (ctrl::master.get_digital_new_press(ctrl::fw_tune_down))
+            v_tune -= v_tune_delta;
+        // set velocity based on distance and tuning
+        velocity = running*(velo_presets[!close] + v_tune);
+        // check if a feed is being attempted
         if (ctrl::master.get_digital(ctrl::feed))
             feed();
-        // m::flywheel1.move_velocity(velo_presets[preset]);
-        // m::flywheel2.move_velocity(velo_presets[preset]);
 
-        if (ctrl::master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y))
-            tune();
+        // tune the flywheel Kp value
+        // if (ctrl::master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y))
+            // tune();
+            // find_kv();
+
+        
+
+        // m::flywheel1.move_voltage(v_test);
+        // m::flywheel2.move_voltage(v_test);
+        if (verbose)
+            telem_out();
     }
+
+
+
 
 
 }

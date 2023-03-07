@@ -23,31 +23,28 @@ namespace ctrl
     extern pros::controller_digital_e_t feed;
     extern pros::controller_digital_e_t fw_far;
     extern pros::controller_digital_e_t fw_close;
+    extern pros::controller_digital_e_t fw_tune_up;
+    extern pros::controller_digital_e_t fw_tune_down;
 }
 
 namespace flywheel
 {
+    inline bool verbose = true;
     inline int velocity = 0;
-    inline int Kp=517;
-    inline const int Ki=0;
-    inline const int Kd=0;
+    inline const float Kv=24.5525; // TUNE THIS
+    inline int Kp=5; // TUNE THIS  
+    inline int Ki=0;
     // used in tuning function
-    inline int delta_v = 0;
-    // 0: stopped
-    // 1: close
-    // 2: far
-    inline const int velo_presets[] = {0, 335, 400};
-    inline const int volt_presets[] = {0, 5000, 7000};
-    inline int preset = 0;
+    inline const int velo_presets[] = {345, 405};
+    inline const int v_tune_delta = 5;
+    inline int v_tune = 0;
     inline bool close = true;
-    inline int speed;
     inline bool running = false;
     void toggle();
     void velocity_control(void* param);
-    void set_speed();
-    void spin(int velocity);
     int feed();
     void opcon();
+
 
 }
 
