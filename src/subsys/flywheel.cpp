@@ -54,7 +54,7 @@ namespace flywheel
                 voltage = 0;
             m::flywheel1.move_voltage(voltage);
             m::flywheel2.move_voltage(voltage);
-            pros::delay(10);
+            pros::delay(2);
         }
     }
 
@@ -68,7 +68,7 @@ namespace flywheel
             return 0;
         }
         // do not shoot unless flywheel is at the correct speed
-        if (abs(get_velo()-velocity)>5)
+        if (abs(get_velo()-velocity)>3)
         {
             cout << "bad flywheel speed: " 
             << m::flywheel1.get_actual_velocity() - velocity << endl;
@@ -166,10 +166,32 @@ namespace flywheel
     void telem_out()
     {
         cout <<
-        "FLYWHEEL_TELEMETRY" << "," <<
         pros::millis() << "," <<
         velocity << "," <<
-        get_velo() << endl;
+        get_velo() << "," <<
+        m::flywheel1.get_voltage() << endl;
+    }
+
+    void find_kv()
+    {
+        int prev_v = get_velo();
+        int v;
+        for ( int v_test=0; v_test<13000; v_test+=500 )
+        {
+            m::flywheel1.move_voltage(v_test);
+            m::flywheel2.move_voltage(v_test);
+            do
+            {
+                pros::delay(50);
+                v = get_velo();
+            } while (!ctrl::master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y));
+            cout << 
+            v_test << "," << 
+            v << endl;
+
+            
+            
+        }
     }
 
 
@@ -197,12 +219,20 @@ namespace flywheel
             feed();
 
         // tune the flywheel Kp value
-        if (ctrl::master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y))
-            tune();
+        // if (ctrl::master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y))
+            // tune();
+            // find_kv();
 
+        
+
+        // m::flywheel1.move_voltage(v_test);
+        // m::flywheel2.move_voltage(v_test);
         if (verbose)
             telem_out();
     }
+
+
+
 
 
 }
