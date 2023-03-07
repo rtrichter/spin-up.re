@@ -34,7 +34,8 @@ namespace drive
 
     inline int Kvt;
     inline int Kpt;
-
+    inline int Kit;
+    inline float Kpr = 1./36000;
 
     void translate(int distance, int velocity);
     void rotate(int degrees, int velocity);

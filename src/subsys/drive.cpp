@@ -46,6 +46,25 @@ namespace drive
         }
     }
 
+    void rotate(int degrees, int velocity)
+    {
+    sens::tare_drive_encoders();
+    int direction = degrees/abs(degrees);
+    int error, v;
+
+    while (!(
+        abs(sens::get_direction())==degrees && 
+        (abs(sens::left.get_velocity()) && abs(sens::right.get_velocity())))
+    )
+    {
+        error = degrees-sens::get_direction();
+        v = Kpr*error+velocity;
+        vleft = velocity;
+        vright = -velocity;
+        pros::delay(2);
+    }
+    }
+
     void translate(int distance, int velocity, float accel_period)
     {
         sens::tare_drive_encoders();
