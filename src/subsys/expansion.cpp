@@ -13,10 +13,7 @@ namespace expansion
 {
     void shoot()
     {
-        static bool fired = false;
-        if (!fired)
-            m::expansion.move_relative(60, 200);
-        fired = true;
+        m::expansion.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
     }
 
     void opcon()

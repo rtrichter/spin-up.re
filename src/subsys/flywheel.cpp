@@ -1,5 +1,5 @@
-#include "subsys/flywheel.hpp"
-#include "subsys/globals.hpp"
+#include "flywheel.hpp"
+#include "globals.hpp"
 
 // define flywheel and feed motors
 pros::Motor m::flywheel1 (p::flywheel1, pros::E_MOTOR_GEARSET_06, true, pros::E_MOTOR_ENCODER_DEGREES);
@@ -74,7 +74,10 @@ namespace flywheel
             << m::flywheel1.get_actual_velocity() - velocity << endl;
             return 0;
         }
-        m::feed.move_relative(360, 200);
+        if (ctrl::master.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT))
+            m::feed.move_relative(-360, 200);
+        else
+            m::feed.move_relative(360, 200);
         pros::delay(50);
         return 1;
     }
@@ -218,17 +221,6 @@ namespace flywheel
         if (ctrl::master.get_digital(ctrl::feed))
             feed();
 
-        // tune the flywheel Kp value
-        // if (ctrl::master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y))
-            // tune();
-            // find_kv();
-
-        
-
-        // m::flywheel1.move_voltage(v_test);
-        // m::flywheel2.move_voltage(v_test);
-        if (verbose)
-            telem_out();
     }
 
 
