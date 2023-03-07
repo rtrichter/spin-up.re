@@ -13,7 +13,7 @@ namespace expansion
 {
     void shoot()
     {
-        m::expansion.move_relative(60, 200);
+        m::expansion.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
     }
 
     void opcon()
