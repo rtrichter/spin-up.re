@@ -32,10 +32,10 @@ namespace flywheel
     inline bool verbose = true;
     inline int velocity = 0;
     inline const float Kv=24.5525; // TUNE THIS
-    inline int Kp=5; // TUNE THIS  
-    inline int Ki=0;
+    inline int Kp=4; // TUNE THIS  
+    inline float Ki=0./1000;
     // used in tuning function
-    inline const int velo_presets[] = {345, 405};
+    inline const int velo_presets[] = {340, 405};
     inline const int v_tune_delta = 5;
     inline int v_tune = 0;
     inline bool close = true;

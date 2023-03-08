@@ -48,7 +48,7 @@ namespace flywheel
             current = get_velo();
             error = velocity - current;
             total_error += error;
-            voltage = Kv*velocity + Kp*error;
+            voltage = Kv*velocity + Kp*error + Ki*total_error;
             // do not brake to get to 0
             if (!velocity)
                 voltage = 0;
@@ -68,7 +68,7 @@ namespace flywheel
             return 0;
         }
         // do not shoot unless flywheel is at the correct speed
-        if (abs(get_velo()-velocity)>3)
+        if (abs(get_velo()-velocity)>5)
         {
             cout << "bad flywheel speed: " 
             << m::flywheel1.get_actual_velocity() - velocity << endl;
@@ -197,6 +197,26 @@ namespace flywheel
         }
     }
 
+    void kp_test()
+    {
+        Kp = 0;
+        while (Kp<10)
+        {
+            velocity=340;
+            for (int i=0; i<500; i++)
+            {
+                cout << 
+                pros::millis() << "," <<
+                get_velo() << endl;
+                pros::delay(10);
+            }
+            velocity=0;
+            cout << "\n\n\n\n\n";
+            Kp++;
+            pros::delay(2000);
+        }
+    }
+
 
     void opcon()
     {
@@ -221,6 +241,18 @@ namespace flywheel
         if (ctrl::master.get_digital(ctrl::feed))
             feed();
 
+        // tune the flywheel Kp value
+        if (ctrl::master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y))
+            // tune();
+            // find_kv();
+            kp_test();
+
+        
+
+        // m::flywheel1.move_voltage(v_test);
+        // m::flywheel2.move_voltage(v_test);
+        if (verbose)
+            telem_out();
     }
 
 
