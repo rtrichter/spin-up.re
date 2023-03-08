@@ -17,6 +17,7 @@ namespace ctrl
 {
     extern pros::controller_digital_e_t roller_down;
     extern pros::controller_digital_e_t roller_up;
+    extern pros::controller_digital_e_t roller_auto;
 }
 
 namespace roller

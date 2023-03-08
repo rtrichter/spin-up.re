@@ -5,6 +5,8 @@
 
 #define PI 3.141593
 
+inline int my_color;
+
 namespace ctrl
 {
     extern pros::Controller master;
