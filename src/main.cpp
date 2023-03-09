@@ -20,7 +20,7 @@
  */
 void initialize() {
 	pros::Task flywheel_speed(flywheel::velocity_control);
-	pros::Task drive_speed(drive::velocity_control);
+	// pros::Task drive_speed(drive::velocity_control);
 	pros::lcd::initialize();
 
 	pros::lcd::register_btn0_cb(auton::on_btn0);
@@ -35,8 +35,8 @@ void initialize() {
 	sens::left.reset();
 	sens::right.reset();
 	// set all motor brake types
-	m::left.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-	m::right.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+	m::left.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
+	m::right.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
 	m::feed.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
 	m::flywheel1.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
 	m::flywheel2.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
@@ -104,7 +104,7 @@ void opcontrol() {
 		expansion::opcon();
 		if (!(count%5))
 		{
-			cout << count << endl;
+			// cout << count << endl;
 			logging::record();
 		}
 		pros::delay(10);

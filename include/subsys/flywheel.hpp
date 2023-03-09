@@ -29,7 +29,7 @@ namespace ctrl
 
 namespace flywheel
 {
-    inline bool verbose = true;
+    inline bool verbose = false;
     inline int velocity = 0;
     inline const float Kv=24.5525; // TUNE THIS
     inline int Kp=4; // TUNE THIS  

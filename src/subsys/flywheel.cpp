@@ -242,10 +242,10 @@ namespace flywheel
             feed();
 
         // tune the flywheel Kp value
-        if (ctrl::master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y))
-            // tune();
-            // find_kv();
-            kp_test();
+        // if (ctrl::master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y))
+        //     // tune();
+        //     // find_kv();
+        //     kp_test();
 
         
 

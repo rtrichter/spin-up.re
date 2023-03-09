@@ -51,28 +51,33 @@ namespace drive
     {
         return x*(24*360)/(100*4*PI);
     }
-    
-    void translate(int distance, int velocity)
-    {
-        int d = ct2deg(distance);
-        m::left.move_relative(d, velocity);
-        m::right.move_relative(d, velocity);
-    }
-
-    void rotate(int degrees, int velocity)
-    {
-        int d = wheelbase*PI*(degrees/360.)*(100./24);
-        m::left.move_relative(d, velocity);
-        m::right.move_relative(d, velocity);
-    }
 
     void wait_to_stop()
     {
         while (sens::drive_is_moving())
         {
             pros::delay(10);
-        }
+        }     
     }
+    
+    void translate(int distance, int v)
+    {
+        int d = ct2deg(distance);
+        cout << d << endl;
+        m::left.move_relative(d,v);
+        m::right.move_relative(d,v);
+        pros::delay(200);
+    }
+
+    void rotate(int degrees, int velocity)
+    {
+        int d = ct2deg(wheelbase*PI*(degrees/360.)*(100./24));
+        cout << d << endl;
+        m::left.move_relative(d, velocity);
+        m::right.move_relative(-d, velocity);
+        pros::delay(200);
+    }
+
 
 
     // maps analog input to the first concave up section of a cosine wave 
@@ -101,11 +106,31 @@ namespace drive
         m::right.move_velocity(right);
     }
 
+    void test()
+    {
+        cout << "testing\n" << endl;
+        translate(100, 150);
+        cout << "finished translate\n";
+        wait_to_stop();
+        cout << "finished wait\n";
+        pros::delay(100);
+        rotate(180, 150);
+        wait_to_stop();
+        cout << "finished rotate\n" << endl;
+    }
+
     // runs repeatedly during main's opcon function
    void opcon()
     {
         int l = get_mapped_input(ctrl::left);
         int r = get_mapped_input(ctrl::right);
-        set_tank(l, r);
+        vleft = l;
+        vright = r;
+        set_tank(l,r);
+        // if (ctrl::master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y))
+        // {
+        //     cout << "about to test\n";
+        //     test();
+        // }
     }
 }
