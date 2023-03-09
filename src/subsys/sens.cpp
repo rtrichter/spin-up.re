@@ -31,4 +31,8 @@ namespace sens
     {
         return gyro.get_accel().x*1600;
     }
+    bool drive_is_moving()
+    {
+        return (abs(left.get_velocity()) || abs(right.get_velocity()));
+    }
 }

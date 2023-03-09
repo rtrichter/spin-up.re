@@ -22,6 +22,7 @@ namespace sens
     void tare_drive_encoders();
     int get_direction();
     float get_accel_x();
+    bool drive_is_moving();
 }
 
 #endif

@@ -25,7 +25,7 @@ namespace ctrl
 namespace drive
 {
     // always use centidegrees for distance and seconds for time
-    inline const int velocity_cap = 13000;
+    inline const int velocity_cap = 200;
     inline const float wheel_size = 4;
     inline const float wheelbase = 14;
     int get_mapped_input(pros::controller_analog_e_t axis);
