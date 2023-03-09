@@ -42,19 +42,31 @@ namespace flywheel
         float error = 1;
         float prev_error = 0;
         float total_error=0;
+        float delta_error=error-prev_error;
         int voltage;
         while (true)
         {
             current = get_velo();
             error = velocity - current;
             total_error += error;
-            voltage = Kv*velocity + Kp*error + Ki*total_error;
+            voltage = Kv*velocity + Kp*error + Ki*total_error + Kd*delta_error;
             // do not brake to get to 0
             if (!velocity)
                 voltage = 0;
             m::flywheel1.move_voltage(voltage);
             m::flywheel2.move_voltage(voltage);
             pros::delay(2);
+
+            if (verbose)
+            {
+                cout << 
+                velocity << "," <<
+                get_velo() << "," <<
+                voltage << "," <<
+                Kp*error << "," <<
+                Ki*total_error << "," <<
+                Kd*delta_error << "," << endl;
+            }
         }
     }
 
@@ -165,11 +177,11 @@ namespace flywheel
 
     void telem_out()
     {
-        cout <<
-        pros::millis() << "," <<
-        velocity << "," <<
-        get_velo() << "," <<
-        m::flywheel1.get_voltage() << endl;
+        // cout <<
+        // pros::millis() << "," <<
+        // velocity << "," <<
+        // get_velo() << "," <<
+        // m::flywheel1.get_voltage() << endl;
     }
 
     void find_kv()

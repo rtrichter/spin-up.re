@@ -33,7 +33,8 @@ namespace flywheel
     inline int velocity = 0;
     inline const float Kv=24.5525; // TUNE THIS
     inline int Kp=4; // TUNE THIS  
-    inline float Ki=0./1000;
+    inline float Ki=0.00001;
+    inline float Kd=0;
     // used in tuning function
     inline const int velo_presets[] = {340, 405};
     inline const int v_tune_delta = 5;
